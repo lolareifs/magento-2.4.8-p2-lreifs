@@ -358,6 +358,7 @@ return [
         'Magento_Wishlist' => 1,
         'Magento_WishlistAnalytics' => 1,
         'Magento_WishlistGraphQl' => 1,
+        'Lreifs_Multiquotes' => 1,
         'Mageplaza_Core' => 1,
         'Mageplaza_Smtp' => 1,
         'PayPal_Braintree' => 1,

@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes Module v1.0.0 - Database Schema
+ * Defines database tables for enterprise immutable quote management
+ * 
+ * Tables:
+ * - lreifs_quote_extension: Main quote extension data with immutability controls
+ * - lreifs_multiquotes_audit_log: Comprehensive audit trail for all operations
+ * 
+ * Features optimized indexes, foreign keys, and constraints for performance
+ * and data integrity in enterprise environments.
+ * 
+ * Copyright © Lreifs All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    
+    <!-- Main Quote Extension Table -->
+    <table name="lreifs_quote_extension" resource="default" engine="innodb" comment="Lreifs Quote Extensions - Immutable Quote System">
+        <!-- Primary Key -->
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        
+        <!-- Foreign Key to quote table -->
+        <column xsi:type="int" name="quote_id" unsigned="true" nullable="false" comment="Quote ID"/>
+        
+        <!-- Customer Information -->
+        <column xsi:type="int" name="customer_id" unsigned="true" nullable="true" comment="Customer ID"/>
+        
+        <!-- Quote Extension Type and Status -->
+        <column xsi:type="varchar" name="extension_type" nullable="false" length="50" default="immutable" comment="Extension Type (immutable, template, etc.)"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="20" default="draft" comment="Status (draft, active, inactive, converted, expired)"/>
+        <column xsi:type="boolean" name="is_active" nullable="false" default="false" comment="Is Quote Active (synced with core quote.is_active)"/>
+        
+        <!-- Immutable System Fields -->
+        <column xsi:type="boolean" name="is_immutable" nullable="false" default="false" comment="Is Quote Immutable"/>
+        <column xsi:type="timestamp" name="locked_at" on_update="false" nullable="true" comment="Timestamp When Quote Became Immutable"/>
+        <column xsi:type="varchar" name="locked_by_user_id" nullable="true" length="255" comment="User ID Who Locked the Quote"/>
+        <column xsi:type="varchar" name="immutable_hash" nullable="true" length="64" comment="SHA256 Hash for Integrity Verification"/>
+        
+        <!-- Business Rules and Configuration -->
+        <column xsi:type="text" name="business_rules" nullable="true" comment="JSON Encoded Business Rules"/>
+        <column xsi:type="json" name="protection_settings" nullable="true" comment="Protection Settings JSON"/>
+        <column xsi:type="boolean" name="allow_item_modification" nullable="false" default="false" comment="Allow Item Modification"/>
+        <column xsi:type="boolean" name="allow_price_modification" nullable="false" default="false" comment="Allow Price Modification"/>
+        <column xsi:type="boolean" name="allow_quantity_modification" nullable="false" default="false" comment="Allow Quantity Modification"/>
+        
+        <!-- Expiration Management -->
+        <column xsi:type="timestamp" name="expires_at" on_update="false" nullable="true" comment="Expiration Date"/>
+        <column xsi:type="smallint" name="expiration_notification_sent" unsigned="true" nullable="false" default="0" comment="Expiration Notification Sent"/>
+        
+        <!-- Versioning and History -->
+        <column xsi:type="int" name="version" unsigned="true" nullable="false" default="1" comment="Version Number"/>
+        <column xsi:type="int" name="parent_quote_extension_id" unsigned="true" nullable="true" comment="Parent Quote Extension ID for Versioning"/>
+        <column xsi:type="text" name="change_log" nullable="true" comment="JSON Encoded Change Log"/>
+        
+        <!-- Metadata -->
+        <column xsi:type="varchar" name="name" nullable="true" length="255" comment="Quote Extension Name/Label"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Quote Extension Description"/>
+        <column xsi:type="text" name="notes" nullable="true" comment="Internal Notes"/>
+        <column xsi:type="json" name="metadata" nullable="true" comment="Additional Metadata JSON"/>
+        
+        <!-- Audit Fields -->
+        <column xsi:type="varchar" name="created_by_user_id" nullable="true" length="255" comment="Created By User ID"/>
+        <column xsi:type="varchar" name="updated_by_user_id" nullable="true" length="255" comment="Updated By User ID"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        
+        <!-- Order Conversion -->
+        <column xsi:type="int" name="converted_to_order_id" unsigned="true" nullable="true" comment="Converted to Order ID"/>
+        <column xsi:type="timestamp" name="converted_at" on_update="false" nullable="true" comment="Converted At"/>
+        
+        <!-- Primary Key Constraint -->
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        
+        <!-- Foreign Key Constraints -->
+        <constraint xsi:type="foreign" referenceId="LREIFS_QUOTE_EXT_QUOTE_ID_QUOTE_ENTITY_ID" 
+                    table="lreifs_quote_extension" column="quote_id" 
+                    referenceTable="quote" referenceColumn="entity_id" 
+                    onDelete="CASCADE"/>
+        
+        <constraint xsi:type="foreign" referenceId="LREIFS_QUOTE_EXT_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID" 
+                    table="lreifs_quote_extension" column="customer_id" 
+                    referenceTable="customer_entity" referenceColumn="entity_id" 
+                    onDelete="SET NULL"/>
+        
+        <constraint xsi:type="foreign" referenceId="LREIFS_QUOTE_EXT_PARENT_ID_LREIFS_QUOTE_EXT_ENTITY_ID" 
+                    table="lreifs_quote_extension" column="parent_quote_extension_id" 
+                    referenceTable="lreifs_quote_extension" referenceColumn="entity_id" 
+                    onDelete="SET NULL"/>
+        
+        <constraint xsi:type="foreign" referenceId="LREIFS_QUOTE_EXT_ORDER_ID_SALES_ORDER_ENTITY_ID" 
+                    table="lreifs_quote_extension" column="converted_to_order_id" 
+                    referenceTable="sales_order" referenceColumn="entity_id" 
+                    onDelete="SET NULL"/>
+        
+        <!-- Indexes for Performance -->
+        <index referenceId="LREIFS_QUOTE_EXT_QUOTE_ID" indexType="btree">
+            <column name="quote_id"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_CUSTOMER_ID" indexType="btree">
+            <column name="customer_id"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_IS_IMMUTABLE" indexType="btree">
+            <column name="is_immutable"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_IS_ACTIVE" indexType="btree">
+            <column name="is_active"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_EXPIRES_AT" indexType="btree">
+            <column name="expires_at"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_CREATED_AT" indexType="btree">
+            <column name="created_at"/>
+        </index>
+        
+        <!-- Unique Constraints -->
+        <constraint xsi:type="unique" referenceId="LREIFS_QUOTE_EXT_QUOTE_ID_EXTENSION_TYPE">
+            <column name="quote_id"/>
+            <column name="extension_type"/>
+        </constraint>
+        
+        <constraint xsi:type="unique" referenceId="LREIFS_QUOTE_EXT_IMMUTABLE_HASH">
+            <column name="immutable_hash"/>
+        </constraint>
+    </table>
+    
+    <!-- Audit Log Table for Compliance -->
+    <table name="lreifs_quote_extension_audit" resource="default" engine="innodb" comment="Lreifs Quote Extensions Audit Log">
+        <column xsi:type="int" name="audit_id" unsigned="true" nullable="false" identity="true" comment="Audit ID"/>
+        <column xsi:type="int" name="quote_extension_id" unsigned="true" nullable="false" comment="Quote Extension ID"/>
+        <column xsi:type="varchar" name="action" nullable="false" length="50" comment="Action Performed"/>
+        <column xsi:type="varchar" name="user_id" nullable="true" length="255" comment="User ID"/>
+        <column xsi:type="varchar" name="user_type" nullable="true" length="50" comment="User Type (admin, customer, system)"/>
+        <column xsi:type="text" name="old_values" nullable="true" comment="Old Values JSON"/>
+        <column xsi:type="text" name="new_values" nullable="true" comment="New Values JSON"/>
+        <column xsi:type="text" name="context" nullable="true" comment="Additional Context JSON"/>
+        <column xsi:type="varchar" name="ip_address" nullable="true" length="45" comment="IP Address"/>
+        <column xsi:type="varchar" name="user_agent" nullable="true" length="500" comment="User Agent"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="audit_id"/>
+        </constraint>
+        
+        <constraint xsi:type="foreign" referenceId="LREIFS_QUOTE_EXT_AUDIT_QUOTE_EXT_ID" 
+                    table="lreifs_quote_extension_audit" column="quote_extension_id" 
+                    referenceTable="lreifs_quote_extension" referenceColumn="entity_id" 
+                    onDelete="CASCADE"/>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_AUDIT_QUOTE_EXT_ID" indexType="btree">
+            <column name="quote_extension_id"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_AUDIT_ACTION" indexType="btree">
+            <column name="action"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_AUDIT_CREATED_AT" indexType="btree">
+            <column name="created_at"/>
+        </index>
+        
+        <index referenceId="LREIFS_QUOTE_EXT_AUDIT_USER_ID" indexType="btree">
+            <column name="user_id"/>
+        </index>
+    </table>
+    
+</schema>

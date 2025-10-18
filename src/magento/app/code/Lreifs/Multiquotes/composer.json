@@ -1,0 +1,48 @@
+{
+    "name": "lreifs/module-multiquotes",
+    "description": "Enterprise-grade immutable quote management module for Magento 2.4.8+ with enhanced REST API, system-wide quote viewing, advanced filtering, and comprehensive audit trails",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "GPL-3.0",
+    "keywords": [
+        "magento2",
+        "quotes",
+        "immutable",
+        "enterprise",
+        "api",
+        "audit",
+        "b2b"
+    ],
+    "authors": [
+        {
+            "name": "Lreifs",
+            "email": "lolareifscarmona@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "~8.1.0||~8.2.0||~8.3.0",
+        "magento/framework": "^103.0",
+        "magento/module-quote": "^101.2",
+        "magento/module-customer": "^103.0",
+        "magento/module-catalog": "^104.0",
+        "magento/module-sales": "^103.0",
+        "magento/module-user": "^101.2"
+    },
+    "suggest": {
+        "magento/module-webapi": "For REST API functionality",
+        "magento/module-authorization": "For admin authorization features"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Lreifs\\Multiquotes\\": ""
+        }
+    },
+    "extra": {
+        "magento-force": "override",
+        "magento-root-dir": "."
+    }
+}

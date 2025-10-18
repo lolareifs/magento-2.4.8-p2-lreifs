@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes Module v1.0.0 - Dependency Injection Configuration
+ * Configures enterprise-grade immutable quote management dependencies
+ * 
+ * Key Configurations:
+ * - Service layer implementations and interfaces
+ * - Repository pattern implementations
+ * - Data model preferences
+ * - Custom logger configurations
+ * - Console command registrations
+ * 
+ * Follows Magento 2 best practices for dependency injection and
+ * enterprise architecture patterns.
+ * 
+ * Copyright © Lreifs All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    
+    <!-- Service Layer Implementations -->
+    <preference for="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface"
+                type="Lreifs\Multiquotes\Model\Api\QuoteExtensionManagement"/>
+    
+        <!-- Repository Implementation -->
+    <preference for="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" 
+                type="Lreifs\Multiquotes\Model\QuoteExtensionRepository" />
+    
+    <preference for="Lreifs\Multiquotes\Api\Data\QuoteExtensionInterface"
+                type="Lreifs\Multiquotes\Model\QuoteExtension"/>
+    
+    <preference for="Lreifs\Multiquotes\Api\Data\CreateImmutableQuoteRequestInterface"
+                type="Lreifs\Multiquotes\Model\Data\CreateImmutableQuoteRequest"/>
+    
+    <preference for="Lreifs\Multiquotes\Api\Data\QuoteItemRequestInterface"
+                type="Lreifs\Multiquotes\Model\Data\QuoteItemRequest"/>
+    
+    <preference for="Lreifs\Multiquotes\Api\Data\QuoteExtensionSearchResultsInterface"
+                type="Lreifs\Multiquotes\Model\Data\QuoteExtensionSearchResults"/>
+
+    <!-- Virtual Types for Service Configuration -->
+    <virtualType name="Lreifs\Multiquotes\Service\QuoteExtensionManagementLogger" type="Monolog\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">lreifs_multiquotes</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagementHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Lreifs\Multiquotes\Service\QuoteExtensionManagementHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/lreifs_multiquotes.log</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Service Dependencies Configuration -->
+    <type name="Lreifs\Multiquotes\Service\QuoteExtensionManagement">
+        <arguments>
+            <argument name="logger" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagementLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- API Layer Dependencies Configuration -->
+    <type name="Lreifs\Multiquotes\Model\Api\QuoteExtensionManagement">
+        <arguments>
+            <argument name="service" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagement</argument>
+            <argument name="requestFactory" xsi:type="object">Lreifs\Multiquotes\Model\Data\CreateImmutableQuoteRequestFactory</argument>
+            <argument name="auditLogger" xsi:type="object">Lreifs\Multiquotes\Service\Audit\AuditLogger</argument>
+            <argument name="contextHelper" xsi:type="object">Lreifs\Multiquotes\Service\Helper\ContextHelper</argument>
+            <argument name="request" xsi:type="object">Magento\Framework\Webapi\Rest\Request</argument>
+            <argument name="logger" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagementLogger</argument>
+        </arguments>
+    </type>
+
+    <type name="Lreifs\Multiquotes\Service\Audit\AuditLogger">
+        <arguments>
+            <argument name="logger" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagementLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Console Commands -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="lreifs_create_immutable_quote" xsi:type="object">Lreifs\Multiquotes\Console\Command\CreateImmutableQuoteCommand</item>
+                <item name="lreifs_activate_quote" xsi:type="object">Lreifs\Multiquotes\Console\Command\ActivateQuoteCommand</item>
+                <item name="lreifs_deactivate_quote" xsi:type="object">Lreifs\Multiquotes\Console\Command\DeactivateQuoteCommand</item>
+                <item name="lreifs_list_customer_quotes" xsi:type="object">Lreifs\Multiquotes\Console\Command\ListCustomerQuotesCommand</item>
+                <item name="lreifs_delete_quote" xsi:type="object">Lreifs\Multiquotes\Console\Command\DeleteQuoteCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
