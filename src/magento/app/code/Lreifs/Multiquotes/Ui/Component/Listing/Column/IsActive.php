@@ -29,17 +29,26 @@ class IsActive extends Column
             foreach ($dataSource['data']['items'] as &$item) {
                 $fieldName = $this->getData('name');
                 
-                if (isset($item[$fieldName]) || array_key_exists($fieldName, $item)) {
-                    $isActive = (bool)$item[$fieldName];
-                    
-                    if ($isActive) {
-                        $item[$fieldName] = '<span class="grid-severity-notice" style="background-color: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;"><span>Active</span></span>';
-                    } else {
-                        $item[$fieldName] = '<span class="grid-severity-critical" style="background-color: #dc3545; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;"><span>Inactive</span></span>';
-                    }
+                // Check multiple possible field names for is_active
+                $isActive = null;
+                if (isset($item['is_active'])) {
+                    $isActive = $item['is_active'];
+                } elseif (isset($item['IsActive'])) {
+                    $isActive = $item['IsActive'];
+                } elseif (isset($item[$fieldName])) {
+                    $isActive = $item[$fieldName];
                 } else {
-                    // Default value if field is missing
-                    $item[$fieldName] = '<span class="grid-severity-minor" style="background-color: #6c757d; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;"><span>Unknown</span></span>';
+                    // Default to 0 if not found
+                    $isActive = 0;
+                }
+                
+                // Convert to boolean and format
+                $isActiveBool = (bool)((int)$isActive);
+                
+                if ($isActiveBool) {
+                    $item[$fieldName] = '<span class="grid-severity-notice" style="background-color: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;"><span>Yes</span></span>';
+                } else {
+                    $item[$fieldName] = '<span class="grid-severity-critical" style="background-color: #dc3545; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;"><span>No</span></span>';
                 }
             }
         }

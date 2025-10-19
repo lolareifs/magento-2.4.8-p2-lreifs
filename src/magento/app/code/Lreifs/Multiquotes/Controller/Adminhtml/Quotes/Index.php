@@ -51,7 +51,7 @@ class Index extends Action
         /** @var \Magento\Framework\View\Result\Page $resultPage */
         $resultPage = $this->resultPageFactory->create();
         $resultPage->setActiveMenu('Lreifs_Multiquotes::quotes');
-        $resultPage->getConfig()->getTitle()->prepend(__('Manage Quotes'));
+        $resultPage->getConfig()->getTitle()->prepend(__('Manage Inmutable Quotes'));
 
         return $resultPage;
     }

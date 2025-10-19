@@ -2,12 +2,6 @@
 <!--
 /**
  * Lreifs Multiquotes Grid UI Component
- * 
- * @category    Lreifs
- * @package     Lreifs_Multiquotes
- * @author      Lola Reifs <lola@reifs.com>
- * @copyright   2025 Lreifs
- * @license     https://opensource.org/licenses/MIT MIT License
  */
 -->
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
@@ -46,16 +40,14 @@
     </dataSource>
     
     <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
         <bookmark name="bookmarks"/>
         <columnsControls name="columns_controls"/>
         <filters name="listing_filters"/>
         <paging name="listing_paging"/>
         <massaction name="listing_massaction">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="component" xsi:type="string">Magento_Ui/js/grid/tree-massactions</item>
-                </item>
-            </argument>
             <action name="delete">
                 <argument name="data" xsi:type="array">
                     <item name="config" xsi:type="array">
@@ -64,25 +56,26 @@
                         <item name="url" xsi:type="url" path="multiquotes/quotes/massDelete"/>
                         <item name="confirm" xsi:type="array">
                             <item name="title" xsi:type="string" translate="true">Delete Quote Extensions</item>
-                            <item name="message" xsi:type="string" translate="true">Are you sure you want to delete selected items?</item>
+                            <item name="message" xsi:type="string" translate="true">Are you sure you want to delete the selected quote extensions?</item>
                         </item>
                     </item>
                 </argument>
             </action>
-
         </massaction>
     </listingToolbar>
     
     <columns name="lreifs_multiquotes_columns">
-        <selectionsColumn name="ids">
+        <selectionsColumn name="ids" sortOrder="5">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="resizeEnabled" xsi:type="boolean">false</item>
+                    <item name="resizeDefaultWidth" xsi:type="string">55</item>
                     <item name="indexField" xsi:type="string">entity_id</item>
                 </item>
             </argument>
         </selectionsColumn>
         
-        <column name="entity_id" sortOrder="10">
+        <column name="entity_id" sortOrder="100">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">textRange</item>
@@ -92,7 +85,7 @@
             </argument>
         </column>
         
-        <column name="quote_id" sortOrder="20">
+        <column name="quote_id" sortOrder="200">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">textRange</item>
@@ -102,7 +95,7 @@
             </argument>
         </column>
         
-        <column name="is_active" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\IsActive" sortOrder="30">
+        <column name="is_active" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\IsActive" sortOrder="300">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">select</item>
@@ -124,7 +117,37 @@
             </argument>
         </column>
         
-        <column name="customer_id" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\CustomerName" sortOrder="40">
+        <column name="status" sortOrder="400">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">select</item>
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/select</item>
+                    <item name="dataType" xsi:type="string">select</item>
+                    <item name="label" xsi:type="string" translate="true">Status</item>
+                    <item name="options" xsi:type="array">
+                        <item name="pending" xsi:type="array">
+                            <item name="value" xsi:type="string">pending</item>
+                            <item name="label" xsi:type="string" translate="true">Pending</item>
+                        </item>
+                        <item name="approved" xsi:type="array">
+                            <item name="value" xsi:type="string">approved</item>
+                            <item name="label" xsi:type="string" translate="true">Approved</item>
+                        </item>
+                        <item name="rejected" xsi:type="array">
+                            <item name="value" xsi:type="string">rejected</item>
+                            <item name="label" xsi:type="string" translate="true">Rejected</item>
+                        </item>
+                        <item name="expired" xsi:type="array">
+                            <item name="value" xsi:type="string">expired</item>
+                            <item name="label" xsi:type="string" translate="true">Expired</item>
+                        </item>
+                    </item>
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                </item>
+            </argument>
+        </column>
+        
+        <column name="customer_id" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\CustomerName" sortOrder="500">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">textRange</item>
@@ -134,39 +157,8 @@
                 </item>
             </argument>
         </column>
-        <column name="is_immutable" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\IsImmutable" sortOrder="50">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">select</item>
-                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/select</item>
-                    <item name="dataType" xsi:type="string">select</item>
-                    <item name="label" xsi:type="string" translate="true">Immutable</item>
-                    <item name="options" xsi:type="array">
-                        <item name="0" xsi:type="array">
-                            <item name="value" xsi:type="string">0</item>
-                            <item name="label" xsi:type="string" translate="true">No</item>
-                        </item>
-                        <item name="1" xsi:type="array">
-                            <item name="value" xsi:type="string">1</item>
-                            <item name="label" xsi:type="string" translate="true">Yes</item>
-                        </item>
-                    </item>
-                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
-                </item>
-            </argument>
-        </column>
         
-        <column name="grand_total" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\Price" sortOrder="60">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="filter" xsi:type="string">textRange</item>
-                    <item name="label" xsi:type="string" translate="true">Grand Total</item>
-                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
-                </item>
-            </argument>
-        </column>
-        
-        <column name="expires_at" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\ExpiresAt" sortOrder="70">
+        <column name="expires_at" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\ExpiresAt" sortOrder="600">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">dateRange</item>
@@ -178,7 +170,7 @@
             </argument>
         </column>
         
-        <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date" sortOrder="80">
+        <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date" sortOrder="700">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="filter" xsi:type="string">dateRange</item>
@@ -190,7 +182,19 @@
             </argument>
         </column>
         
-        <actionsColumn name="actions" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\Actions" sortOrder="90">
+        <column name="updated_at" class="Magento\Ui\Component\Listing\Columns\Date" sortOrder="800">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">dateRange</item>
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/columns/date</item>
+                    <item name="dataType" xsi:type="string">date</item>
+                    <item name="label" xsi:type="string" translate="true">Updated At</item>
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                </item>
+            </argument>
+        </column>
+        
+        <actionsColumn name="actions" class="Lreifs\Multiquotes\Ui\Component\Listing\Column\Actions" sortOrder="900">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="resizeEnabled" xsi:type="boolean">false</item>
@@ -201,3 +205,4 @@
         </actionsColumn>
     </columns>
 </listing>
+

@@ -51,7 +51,22 @@ class Deactivate extends Action
         if ($id) {
             try {
                 $quoteExtension = $this->quoteExtensionRepository->get($id);
+                
+                // Check if quote is immutable
+                if ($quoteExtension->getIsImmutable()) {
+                    $this->messageManager->addErrorMessage(
+                        __('Cannot deactivate an immutable quote. Immutable quotes cannot be modified.')
+                    );
+                    return $resultRedirect;
+                }
+                
                 $quoteExtension->setIsActive(false);
+                
+                // If quote is expired and we're deactivating it, ensure status reflects that
+                if ($this->isQuoteExpired($quoteExtension) && $quoteExtension->getStatus() !== 'expired') {
+                    $quoteExtension->setStatus('expired');
+                }
+                
                 $this->quoteExtensionRepository->save($quoteExtension);
                 
                 $this->messageManager->addSuccessMessage(__('Quote has been deactivated successfully.'));
@@ -60,6 +75,30 @@ class Deactivate extends Action
             }
         } else {
             $this->messageManager->addErrorMessage(__('Quote ID is required.'));
+        }
+    }
+
+    /**
+     * Check if quote is expired
+     *
+     * @param \Lreifs\Multiquotes\Api\Data\QuoteExtensionInterface $quoteExtension
+     * @return bool
+     */
+    private function isQuoteExpired($quoteExtension): bool
+    {
+        // If no expiration date is set, it's not expired
+        if (!$quoteExtension->getExpiresAt()) {
+            return false;
+        }
+
+        try {
+            $expirationDate = new \DateTime($quoteExtension->getExpiresAt());
+            $currentDate = new \DateTime();
+            
+            return $expirationDate < $currentDate;
+        } catch (\Exception $e) {
+            // If we can't parse the date, assume it's not expired to be safe
+            return false;
         }
 
         return $resultRedirect;

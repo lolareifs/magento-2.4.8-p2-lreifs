@@ -167,10 +167,15 @@ class DataProvider extends AbstractDataProvider
         }
 
         // Use is_active from the quote extension table (not from core quote)
-        $item['is_active'] = (bool)$quoteExtension->getIsActive();
+        $isActiveValue = $quoteExtension->getIsActive();
+        $item['is_active'] = (int)($isActiveValue !== null ? $isActiveValue : 0);
         
         // Use is_immutable from the quote extension table
-        $item['is_immutable'] = (bool)$quoteExtension->getIsImmutable();
+        $isImmutableValue = $quoteExtension->getIsImmutable();
+        $item['is_immutable'] = (int)($isImmutableValue !== null ? $isImmutableValue : 0);
+        
+        // Add status field
+        $item['status'] = $quoteExtension->getStatus() ?? 'pending';
 
         // Format expires_at - keep original timestamp
         $item['expires_at'] = $quoteExtension->getExpiresAt();

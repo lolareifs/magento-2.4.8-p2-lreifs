@@ -66,25 +66,60 @@ class MassDelete extends Action
      */
     public function execute()
     {
-        $collection = $this->filter->getCollection($this->collectionFactory->create());
-        $collectionSize = $collection->getSize();
-        $deletedItems = 0;
+        try {
+            $collection = $this->filter->getCollection($this->collectionFactory->create());
+            $collectionSize = $collection->getSize();
+            $deletedItems = 0;
 
-        foreach ($collection as $quoteExtension) {
-            try {
-                $this->quoteExtensionRepository->delete($quoteExtension);
-                $deletedItems++;
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage(
-                    __('Cannot delete quote extension %1. Reason: %2', $quoteExtension->getId(), $e->getMessage())
+            foreach ($collection as $quoteExtension) {
+                try {
+                    $this->quoteExtensionRepository->delete($quoteExtension);
+                    $deletedItems++;
+                } catch (\Exception $e) {
+                    $this->messageManager->addErrorMessage(
+                        __('Cannot delete quote extension %1. Reason: %2', $quoteExtension->getId(), $e->getMessage())
+                    );
+                }
+            }
+
+            if ($deletedItems) {
+                $this->messageManager->addSuccessMessage(
+                    __('A total of %1 record(s) have been deleted.', $deletedItems)
                 );
             }
-        }
-
-        if ($deletedItems) {
-            $this->messageManager->addSuccessMessage(
-                __('A total of %1 record(s) have been deleted.', $deletedItems)
-            );
+        } catch (\Exception $e) {
+            // Fallback: If collection/repository fails, try direct ID-based deletion
+            $selected = $this->getRequest()->getParam('selected');
+            $excluded = $this->getRequest()->getParam('excluded');
+            
+            if (!$selected && $excluded !== 'false') {
+                $this->messageManager->addErrorMessage(__('Please select item(s) to delete.'));
+            } else {
+                $deletedCount = 0;
+                if (is_array($selected)) {
+                    foreach ($selected as $id) {
+                        try {
+                            $quoteExtension = $this->quoteExtensionRepository->get((int)$id);
+                            $this->quoteExtensionRepository->delete($quoteExtension);
+                            $deletedCount++;
+                        } catch (\Exception $deleteError) {
+                            $this->messageManager->addErrorMessage(
+                                __('Cannot delete quote extension %1. Reason: %2', $id, $deleteError->getMessage())
+                            );
+                        }
+                    }
+                }
+                
+                if ($deletedCount > 0) {
+                    $this->messageManager->addSuccessMessage(
+                        __('A total of %1 record(s) have been deleted.', $deletedCount)
+                    );
+                } else {
+                    $this->messageManager->addErrorMessage(
+                        __('No records were deleted. Error: %1', $e->getMessage())
+                    );
+                }
+            }
         }
 
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */

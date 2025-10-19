@@ -90,6 +90,12 @@ class CreateImmutableQuoteCommand extends Command
                 'i',
                 InputOption::VALUE_OPTIONAL,
                 'Items to add to new quote in JSON format: [{"sku":"product-1","qty":2,"price":99.99}]'
+            )
+            ->addOption(
+                'expires-at',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Expiration date and time in ISO 8601 format (e.g., 2025-12-31T23:59:59Z)'
             );
 
         parent::configure();
@@ -116,6 +122,7 @@ class CreateImmutableQuoteCommand extends Command
             $customFee = $input->getOption(self::OPTION_CUSTOM_FEE) ? 
                 (float)$input->getOption(self::OPTION_CUSTOM_FEE) : null;
             $metadataJson = $input->getOption(self::OPTION_METADATA);
+            $expiresAt = $input->getOption('expires-at');
 
             // Determine creation mode
             $createFromItems = !empty($itemsJson);
@@ -161,12 +168,19 @@ class CreateImmutableQuoteCommand extends Command
                 }
             }
 
+            // Validate expires_at format if provided
+            if ($expiresAt && !preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z?$/', $expiresAt)) {
+                $io->error('Invalid expires_at format. Use ISO 8601 format (e.g., 2025-12-31T23:59:59Z)');
+                return Cli::RETURN_FAILURE;
+            }
+
             // Create request object
             $requestData = [
                 'admin_user_id' => $adminUserId,
                 'customer_reference' => $customerReference,
                 'custom_fee' => $customFee,
                 'metadata' => $metadata,
+                'expires_at' => $expiresAt,
                 'ip_address' => 'console',
                 'user_agent' => 'Magento CLI'
             ];

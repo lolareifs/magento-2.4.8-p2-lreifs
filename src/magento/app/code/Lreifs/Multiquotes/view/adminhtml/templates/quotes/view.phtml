@@ -22,12 +22,45 @@ if (!$quoteExtension) {
                 class="back" type="button">
             <span><?= $block->escapeHtml(__('Back')) ?></span>
         </button>
-        <?php if ($quoteExtension->getStatus() !== 'converted' && !$quoteExtension->getIsImmutable()): ?>
+        <?php
+        // Check if quote is expired
+        $isExpired = false;
+        if ($quoteExtension->getExpiresAt()) {
+            try {
+                $expirationDate = new \DateTime($quoteExtension->getExpiresAt());
+                $currentDate = new \DateTime();
+                $isExpired = $expirationDate < $currentDate;
+            } catch (\Exception $e) {
+                $isExpired = false;
+            }
+        }
+        ?>
+        
+        <?php if ($quoteExtension->getStatus() !== 'converted' && !$quoteExtension->getIsImmutable() && !$isExpired): ?>
         <button onclick="setLocation('<?= $block->escapeUrl($block->getEditUrl()) ?>')" 
                 class="edit primary" type="button">
             <span><?= $block->escapeHtml(__('Edit')) ?></span>
         </button>
         <?php endif; ?>
+        
+        <?php if ($isExpired): ?>
+        <button class="action-default disabled" type="button" disabled>
+            <span><?= $block->escapeHtml(__('Edit (Expired)')) ?></span>
+        </button>
+        <button class="action-default disabled" type="button" disabled style="background: #f39800; color: white;">
+            <span><?= $block->escapeHtml(__('⚠ Quote Expired')) ?></span>
+        </button>
+        <?php endif; ?>
+        
+        <?php if ($quoteExtension->getIsImmutable()): ?>
+        <button class="action-default disabled" type="button" disabled>
+            <span><?= $block->escapeHtml(__('Edit (Immutable)')) ?></span>
+        </button>
+        <button class="action-default disabled" type="button" disabled style="background: #666; color: white;">
+            <span><?= $block->escapeHtml(__('🔒 Immutable')) ?></span>
+        </button>
+        <?php endif; ?>
+        
         <button onclick="deleteConfirm('<?= $block->escapeJs(__('Are you sure you want to delete this quote extension?')) ?>', 
                         '<?= $block->escapeUrl($block->getDeleteUrl()) ?>')" 
                 class="delete" type="button">
@@ -172,27 +205,31 @@ if (!$quoteExtension) {
                 <table class="admin__table-secondary">
                     <tr>
                         <th><?= $block->escapeHtml(__('Quote ID')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getId()) ?></td>
+                        <td><?= $block->escapeHtml($quote->getId() ?: __('N/A')) ?></td>
                     </tr>
                     <tr>
                         <th><?= $block->escapeHtml(__('Items Count')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getItemsCount()) ?></td>
+                        <td><?= $block->escapeHtml($quote->getItemsCount() ?: '0') ?></td>
                     </tr>
                     <tr>
                         <th><?= $block->escapeHtml(__('Items Qty')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getItemsQty()) ?></td>
+                        <td><?= $block->escapeHtml($quote->getItemsQty() ?: '0') ?></td>
                     </tr>
                     <tr>
                         <th><?= $block->escapeHtml(__('Subtotal')) ?></th>
-                        <td><?= $block->formatCurrency($quote->getSubtotal()) ?></td>
+                        <td><?= $quote->getSubtotal() !== null ? $block->formatCurrency($quote->getSubtotal()) : __('N/A') ?></td>
                     </tr>
-                    <?php if ($quote->getTaxAmount() > 0): ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Base Subtotal')) ?></th>
+                        <td><?= $quote->getBaseSubtotal() !== null ? $block->formatCurrency($quote->getBaseSubtotal()) : __('N/A') ?></td>
+                    </tr>
+                    <?php if ($quote->getTaxAmount() && $quote->getTaxAmount() > 0): ?>
                     <tr>
                         <th><?= $block->escapeHtml(__('Tax Amount')) ?></th>
                         <td><?= $block->formatCurrency($quote->getTaxAmount()) ?></td>
                     </tr>
                     <?php endif; ?>
-                    <?php if ($quote->getShippingAmount() > 0): ?>
+                    <?php if ($quote->getShippingAmount() && $quote->getShippingAmount() > 0): ?>
                     <tr>
                         <th><?= $block->escapeHtml(__('Shipping Amount')) ?></th>
                         <td><?= $block->formatCurrency($quote->getShippingAmount()) ?></td>
@@ -200,11 +237,19 @@ if (!$quoteExtension) {
                     <?php endif; ?>
                     <tr>
                         <th><?= $block->escapeHtml(__('Grand Total')) ?></th>
-                        <td><strong><?= $block->formatCurrency($quote->getGrandTotal()) ?></strong></td>
+                        <td><strong><?= $quote->getGrandTotal() !== null ? $block->formatCurrency($quote->getGrandTotal()) : __('N/A') ?></strong></td>
                     </tr>
                     <tr>
                         <th><?= $block->escapeHtml(__('Currency')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getQuoteCurrencyCode()) ?></td>
+                        <td><?= $block->escapeHtml($quote->getQuoteCurrencyCode() ?: __('N/A')) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Store ID')) ?></th>
+                        <td><?= $block->escapeHtml($quote->getStoreId() ?: __('N/A')) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Is Active')) ?></th>
+                        <td><?= $quote->getIsActive() ? __('Yes') : __('No') ?></td>
                     </tr>
                 </table>
             </div>
@@ -232,15 +277,46 @@ if (!$quoteExtension) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($quote->getAllItems() as $item): ?>
-                            <tr class="data-grid-tr">
-                                <td class="data-grid-td"><?= $block->escapeHtml($item->getName()) ?></td>
-                                <td class="data-grid-td"><?= $block->escapeHtml($item->getSku()) ?></td>
-                                <td class="data-grid-td"><?= $block->formatCurrency($item->getPrice()) ?></td>
-                                <td class="data-grid-td"><?= $block->escapeHtml($item->getQty()) ?></td>
-                                <td class="data-grid-td"><?= $block->formatCurrency($item->getRowTotal()) ?></td>
-                            </tr>
-                            <?php endforeach; ?>
+                            <?php 
+                            $items = $quote->getAllItems();
+                            $totalSubtotal = 0;
+                            ?>
+                            <?php if ($items && count($items) > 0): ?>
+                                <?php foreach ($items as $item): ?>
+                                <?php 
+                                $itemSubtotal = $item->getRowTotal() ?: ($item->getPrice() * $item->getQty());
+                                $totalSubtotal += $itemSubtotal;
+                                ?>
+                                <tr class="data-grid-tr">
+                                    <td class="data-grid-td">
+                                        <?= $block->escapeHtml($item->getName() ?: __('Unknown Product')) ?>
+                                        <?php if ($item->getProductType()): ?>
+                                            <br><small><?= $block->escapeHtml(__('Type: %1', $item->getProductType())) ?></small>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="data-grid-td"><?= $block->escapeHtml($item->getSku() ?: __('N/A')) ?></td>
+                                    <td class="data-grid-td"><?= $item->getPrice() !== null ? $block->formatCurrency($item->getPrice()) : __('N/A') ?></td>
+                                    <td class="data-grid-td"><?= $block->escapeHtml($item->getQty() ?: '0') ?></td>
+                                    <td class="data-grid-td">
+                                        <strong><?= $itemSubtotal !== null ? $block->formatCurrency($itemSubtotal) : __('N/A') ?></strong>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                                <tr class="data-grid-tr" style="border-top: 2px solid #ccc; background: #f5f5f5;">
+                                    <td colspan="4" class="data-grid-td" style="text-align: right; font-weight: bold;">
+                                        <?= $block->escapeHtml(__('Total Subtotal (Calculated):')) ?>
+                                    </td>
+                                    <td class="data-grid-td" style="font-weight: bold;">
+                                        <strong><?= $block->formatCurrency($totalSubtotal) ?></strong>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <tr class="data-grid-tr">
+                                    <td colspan="5" class="data-grid-td" style="text-align: center; padding: 2rem;">
+                                        <em><?= $block->escapeHtml(__('No items found in this quote.')) ?></em>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -262,6 +338,47 @@ if (!$quoteExtension) {
                 <div class="admin__control-textarea">
                     <?= $block->escapeHtml($quoteExtension->getNotes()) ?>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Debug Information (Development Only) -->
+<?php if ($block->getRequest()->getParam('debug')): ?>
+<div class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Debug Information')) ?></span>
+        <small style="color: #666;">(Add ?debug=1 to URL to see this section)</small>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item">
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary">
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Quote Extension Data')) ?></th>
+                        <td><pre style="font-size: 11px; max-height: 200px; overflow: auto;"><?= $block->escapeHtml(print_r($quoteExtension->getData(), true)) ?></pre></td>
+                    </tr>
+                    <?php if ($quote): ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Quote Data')) ?></th>
+                        <td><pre style="font-size: 11px; max-height: 200px; overflow: auto;"><?= $block->escapeHtml(print_r($quote->getData(), true)) ?></pre></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Quote Items')) ?></th>
+                        <td>
+                            <?php if ($quote->getAllItems()): ?>
+                                <?php foreach ($quote->getAllItems() as $i => $item): ?>
+                                    <strong>Item <?= $i + 1 ?>:</strong>
+                                    <pre style="font-size: 10px; max-height: 150px; overflow: auto;"><?= $block->escapeHtml(print_r($item->getData(), true)) ?></pre>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <em>No items found</em>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
             </div>
         </div>
     </div>

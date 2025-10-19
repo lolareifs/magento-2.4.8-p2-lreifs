@@ -121,6 +121,11 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
             $quoteExtension->setImmutableCreatedBy($request->getAdminUserId());
             $quoteExtension->setImmutableCreatedAt(date('Y-m-d H:i:s'));
             
+            // Set expiration date if provided
+            if ($request->getExpiresAt() !== null) {
+                $quoteExtension->setExpiresAt($request->getExpiresAt());
+            }
+            
             // Set optional properties
             if ($request->getCustomerReference() !== null) {
                 $quoteExtension->setCustomerReference($request->getCustomerReference());
@@ -230,6 +235,11 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
             $quoteExtension->setIsImmutable(true);
             $quoteExtension->setImmutableCreatedBy($request->getAdminUserId());
             $quoteExtension->setImmutableCreatedAt(date('Y-m-d H:i:s'));
+            
+            // Set expiration date if provided
+            if ($request->getExpiresAt() !== null) {
+                $quoteExtension->setExpiresAt($request->getExpiresAt());
+            }
             
             // Set optional properties from request
             if ($request->getName() !== null) {
