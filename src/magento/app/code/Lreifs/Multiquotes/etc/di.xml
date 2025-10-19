@@ -91,6 +91,7 @@
                 <item name="lreifs_deactivate_quote" xsi:type="object">Lreifs\Multiquotes\Console\Command\DeactivateQuoteCommand</item>
                 <item name="lreifs_list_customer_quotes" xsi:type="object">Lreifs\Multiquotes\Console\Command\ListCustomerQuotesCommand</item>
                 <item name="lreifs_delete_quote" xsi:type="object">Lreifs\Multiquotes\Console\Command\DeleteQuoteCommand</item>
+                <item name="lreifs_expire_quotes" xsi:type="object">Lreifs\Multiquotes\Console\Command\ExpireQuotesCommand</item>
             </argument>
         </arguments>
     </type>

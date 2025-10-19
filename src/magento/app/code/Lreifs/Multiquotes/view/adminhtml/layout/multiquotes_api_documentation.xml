@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes API Documentation Layout
+ * 
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>API Documentation - LREIFS Multiquotes</title>
+        <css src="Lreifs_Multiquotes::css/admin-api-docs.css"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Lreifs\Multiquotes\Block\Adminhtml\Api\Documentation" 
+                   name="multiquotes_api_documentation" 
+                   template="Lreifs_Multiquotes::api/documentation.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

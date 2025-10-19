@@ -1,0 +1,118 @@
+<?php
+/**
+ * Lreifs Multiquotes Dashboard Grid Template
+ * 
+ * @var $block \Lreifs\Multiquotes\Block\Adminhtml\Dashboard\Grid
+ */
+?>
+<div class="admin__data-grid-wrap">
+    <table class="admin__data-table" cellspacing="0">
+        <thead>
+            <tr>
+                <th class="admin__data-table-column-title" style="width: 80px;">
+                    <span><?= $block->escapeHtml(__('Quote ID')) ?></span>
+                </th>
+                <th class="admin__data-table-column-title" style="width: 100px;">
+                    <span><?= $block->escapeHtml(__('Customer ID')) ?></span>
+                </th>
+                <th class="admin__data-table-column-title">
+                    <span><?= $block->escapeHtml(__('Customer')) ?></span>
+                </th>
+                <th class="admin__data-table-column-title">
+                    <span><?= $block->escapeHtml(__('Status')) ?></span>
+                </th>
+                <th class="admin__data-table-column-title">
+                    <span><?= $block->escapeHtml(__('Total')) ?></span>
+                </th>
+                <th class="admin__data-table-column-title">
+                    <span><?= $block->escapeHtml(__('Created At')) ?></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Sample data - this would come from the actual collection in a real implementation
+            $sampleData = [
+                [
+                    'quote_id' => 1,
+                    'customer_id' => 101,
+                    'customer_name' => 'John Doe',
+                    'status' => 'pending',
+                    'total' => '$1,250.00',
+                    'created_at' => date('Y-m-d H:i:s', strtotime('-2 hours'))
+                ],
+                [
+                    'quote_id' => 2,
+                    'customer_id' => 102,
+                    'customer_name' => 'Jane Smith',
+                    'status' => 'approved',
+                    'total' => '$850.00',
+                    'created_at' => date('Y-m-d H:i:s', strtotime('-5 hours'))
+                ]
+            ];
+            ?>
+            <?php foreach ($sampleData as $item): ?>
+                <tr>
+                    <td class="admin__data-table-cell" style="text-align: center;">
+                        <?= $block->escapeHtml($item['quote_id']) ?>
+                    </td>
+                    <td class="admin__data-table-cell" style="text-align: center;">
+                        <?= $block->escapeHtml($item['customer_id']) ?>
+                    </td>
+                    <td class="admin__data-table-cell">
+                        <?= $block->escapeHtml($item['customer_name']) ?>
+                    </td>
+                    <td class="admin__data-table-cell">
+                        <span class="grid-severity-<?= $item['status'] ?>">
+                            <?= $block->escapeHtml(ucfirst($item['status'])) ?>
+                        </span>
+                    </td>
+                    <td class="admin__data-table-cell">
+                        <?= $block->escapeHtml($item['total']) ?>
+                    </td>
+                    <td class="admin__data-table-cell">
+                        <?= $block->escapeHtml(date('M j, Y H:i:s', strtotime($item['created_at']))) ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+<style>
+.grid-severity-pending {
+    background: #fff3cd;
+    color: #856404;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.grid-severity-approved {
+    background: #d1ecf1;
+    color: #0c5460;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.grid-severity-rejected {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.grid-severity-expired {
+    background: #e2e3e5;
+    color: #383d41;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+</style>

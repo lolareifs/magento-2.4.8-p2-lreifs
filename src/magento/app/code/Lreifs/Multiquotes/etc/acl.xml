@@ -1,24 +1,33 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Lreifs Multiquotes Module v1.0.0 - Access Control List
- * Defines admin permissions for immutable quote management
+ * Lreifs Multiquotes Access Control List (ACL)
  * 
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
-                <resource id="Lreifs_Multiquotes::parent" title="Immutable Quotes Management" translate="title" sortOrder="100">
-                    <resource id="Lreifs_Multiquotes::quote_extension_view" title="View Customer Quotes" translate="title" sortOrder="10"/>
-                    <resource id="Lreifs_Multiquotes::quote_extension_view_all" title="View All System Quotes (Admin Only)" translate="title" sortOrder="20"/>
-                    <resource id="Lreifs_Multiquotes::quote_extension_create" title="Create and Convert Quotes" translate="title" sortOrder="30"/>
-                    <resource id="Lreifs_Multiquotes::quote_extension_activate" title="Activate and Deactivate Quotes" translate="title" sortOrder="40"/>
-                    <resource id="Lreifs_Multiquotes::quote_extension_delete" title="Delete Immutable Quotes" translate="title" sortOrder="50"/>
+                <resource id="Lreifs_Multiquotes::main" title="LREIFS" sortOrder="10">
+                    <resource id="Lreifs_Multiquotes::quotes" title="Manage Quotes" sortOrder="10"/>
+                    <resource id="Lreifs_Multiquotes::api_docs" title="API Documentation" sortOrder="20"/>
+                    <resource id="Lreifs_Multiquotes::configuration" title="Configuration" sortOrder="30"/>
+                </resource>
+                
+                <!-- System Configuration Permissions -->
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Lreifs_Multiquotes::config" title="Multiquotes Configuration"/>
+                        </resource>
+                    </resource>
                 </resource>
             </resource>
         </resources>

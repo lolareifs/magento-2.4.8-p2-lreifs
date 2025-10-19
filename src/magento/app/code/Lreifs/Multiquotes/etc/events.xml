@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes Module v1.0.0 - Events Configuration
+ * 
+ * Configures event observers for real-time quote expiration checking
+ * and other quote lifecycle events.
+ * 
+ * Copyright © Lreifs All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    
+    <!-- Check quote expiration when quote extension is loaded -->
+    <event name="lreifs_quote_extension_load_after">
+        <observer name="check_quote_expiration" 
+                  instance="Lreifs\Multiquotes\Observer\CheckQuoteExpirationObserver"/>
+    </event>
+    
+    <!-- Check quote expiration before quote operations -->
+    <event name="lreifs_quote_extension_before_save">
+        <observer name="check_quote_expiration_before_save" 
+                  instance="Lreifs\Multiquotes\Observer\CheckQuoteExpirationObserver"/>
+    </event>
+    
+    <!-- Log quote access for audit purposes -->
+    <event name="lreifs_quote_extension_view">
+        <observer name="log_quote_access" 
+                  instance="Lreifs\Multiquotes\Observer\LogQuoteAccessObserver"/>
+    </event>
+    
+</config>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes Quote View Layout
+ * 
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Quote Extension Details</title>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Lreifs\Multiquotes\Block\Adminhtml\Quotes\View" 
+                   name="multiquotes.quotes.view" 
+                   template="Lreifs_Multiquotes::quotes/view.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

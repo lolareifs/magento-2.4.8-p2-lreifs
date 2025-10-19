@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes System Configuration
+ * 
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="lreifs" translate="label" sortOrder="100">
+            <label>LREIFS</label>
+        </tab>
+        
+        <section id="multiquotes" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Multiquotes</label>
+            <tab>lreifs</tab>
+            <resource>Lreifs_Multiquotes::configuration</resource>
+            <!-- Minimal configuration: keep only essential settings -->
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Multiquotes</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>multiquotes/general/enabled</config_path>
+                </field>
+                <field id="module_version" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Module Version</label>
+                    <frontend_model>Lreifs\Multiquotes\Block\Adminhtml\System\Config\Version</frontend_model>
+                    <config_path>multiquotes/general/module_version</config_path>
+                </field>
+            </group>
+
+            <group id="rate_limiting" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Rate Limiting</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Rate Limiting</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>multiquotes/rate_limiting/enabled</config_path>
+                </field>
+                <field id="requests_per_hour" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Requests Per Hour</label>
+                    <comment>Max requests per hour per customer (default: 100)</comment>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <config_path>multiquotes/rate_limiting/requests_per_hour</config_path>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+
+
+            <group id="expiration" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Quote Expiration Settings</label>
+                
+                <field id="cron_enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enable Automatic Expiration</label>
+                    <comment>Enable automatic processing of expired quotes via cron job</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>lreifs_multiquotes/expiration/cron_enabled</config_path>
+                </field>
+                
+                <field id="batch_size" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Batch Size</label>
+                    <comment>Number of quotes to process in each batch (default: 100)</comment>
+                    <validate>integer validate-greater-than-zero</validate>
+                    <config_path>lreifs_multiquotes/expiration/batch_size</config_path>
+                    <depends>
+                        <field id="cron_enabled">1</field>
+                    </depends>
+                </field>
+                
+                <field id="max_execution_time" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Max Execution Time (seconds)</label>
+                    <comment>Maximum execution time for cron job in seconds (default: 300)</comment>
+                    <validate>integer validate-greater-than-zero</validate>
+                    <config_path>lreifs_multiquotes/expiration/max_execution_time</config_path>
+                    <depends>
+                        <field id="cron_enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+
+        </section>
+    </system>
+</config>

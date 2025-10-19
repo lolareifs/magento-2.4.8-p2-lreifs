@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes Admin Routes Configuration
+ * 
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <route id="multiquotes" frontName="multiquotes">
+            <module name="Lreifs_Multiquotes" before="Magento_Backend"/>
+        </route>
+    </router>
+</config>

@@ -1,0 +1,778 @@
+<?php
+/**
+ * Lreifs Multiquotes API Documentation Template
+ * 
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
+ */
+
+// Base URL for examples
+$baseUrl = $block->getBaseUrl();
+$adminToken = 'your_admin_token_here';
+?>
+
+<div class="api-documentation-container">
+    <!-- Header Section -->
+    <div class="api-header">
+        <div class="api-header-content">
+            <h1 class="api-title">
+                <i class="icon-api">🚀</i>
+                LREIFS Multiquotes API Documentation
+            </h1>
+            <p class="api-subtitle">Complete REST API reference with real endpoints and CLI commands</p>
+            <div class="api-version">
+                <span class="version-badge"><?= $block->escapeHtml($block->getFormattedVersion()) ?></span>
+                <span class="status-badge status-stable">Production Ready</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="api-navigation">
+        <h3>Quick Navigation</h3>
+        <div class="nav-grid">
+            <a href="#authentication" class="nav-item">
+                <i class="icon-lock">🔐</i>
+                <span>Authentication</span>
+            </a>
+            <a href="#quotes" class="nav-item">
+                <i class="icon-quote">💬</i>
+                <span>Quote Management</span>
+            </a>
+            <a href="#rate-limiting" class="nav-item">
+                <i class="icon-rate">⚡</i>
+                <span>Rate Limiting</span>
+            </a>
+            <a href="#cli-commands" class="nav-item">
+                <i class="icon-cli">⌨️</i>
+                <span>CLI Commands</span>
+            </a>
+            <a href="#errors" class="nav-item">
+                <i class="icon-error">⚠️</i>
+                <span>Error Handling</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Authentication Section -->
+    <section id="authentication" class="api-section">
+        <div class="section-header">
+            <h2><i class="icon-lock">🔐</i> Authentication</h2>
+            <span class="section-badge">Required</span>
+        </div>
+        <div class="section-content">
+            <p class="section-description">Authenticate using Magento's admin token system for API access.</p>
+            
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="url">/rest/V1/integration/admin/token</span>
+                    <span class="endpoint-tag tag-auth">Authentication</span>
+                </div>
+                <div class="endpoint-body">
+                    <h4>cURL Example:</h4>
+                    <div class="code-block">
+                        <pre><code>curl -X POST "<?= $baseUrl ?>rest/V1/integration/admin/token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "admin123"
+  }'</code></pre>
+                    </div>
+                    <h4>CLI Command:</h4>
+                    <div class="code-block">
+                        <pre><code># Generate admin token via CLI
+bin/magento admin:user:create --admin-user=apiuser --admin-password=ApiPass123! --admin-email=api@lreifs.com --admin-firstname=API --admin-lastname=User</code></pre>
+                    </div>
+                    <h4>Response:</h4>
+                    <div class="code-block">
+                        <pre><code>"bm90aWNlZGFta25vd2luZzphcGl0ZXN0aW5nMTIz"</code></pre>
+                    </div>
+                    <div class="usage-note">
+                        <strong>Important:</strong> Store the token securely and include it in all API requests as: 
+                        <code>Authorization: Bearer {token}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote Management Section -->
+    <section id="quotes" class="api-section">
+        <div class="section-header">
+            <h2><i class="icon-quote">💬</i> Quote Management API</h2>
+            <span class="section-badge">Core</span>
+        </div>
+        <div class="section-content">
+            <p class="section-description">Real endpoints for quote management with practical examples and CLI testing commands.</p>
+            
+            <!-- Get Quotes List -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="url">/rest/V1/lreifs-multiquotes/all-quotes</span>
+                    <span class="endpoint-tag tag-list">List All Quotes</span>
+                </div>
+                <div class="endpoint-body">
+                    <h4>cURL Example:</h4>
+                    <div class="code-block">
+                        <pre><code>curl -X GET "<?= $baseUrl ?>rest/V1/lreifs-multiquotes/all-quotes?page=1&limit=20" \
+  -H "Authorization: Bearer <?= $adminToken ?>" \
+  -H "Content-Type: application/json"</code></pre>
+                    </div>
+                    <h4>CLI Command:</h4>
+                    <div class="code-block">
+                        <pre><code># Test endpoint with CLI
+bin/magento lreifs:multiquotes:list --format=json
+
+# Get quotes by status
+bin/magento lreifs:multiquotes:list --status=pending</code></pre>
+                    </div>
+                    <h4>Response:</h4>
+                    <div class="code-block">
+                        <pre><code>{
+  "success": true,
+  "quotes": [
+    {
+      "id": 1,
+      "customer_id": 123,
+      "status": "pending",
+      "total_amount": 1250.50,
+      "currency": "EUR",
+      "created_at": "2025-10-19T10:30:00Z",
+      "expires_at": "2025-11-18T23:59:59Z"
+    }
+  ],
+  "total_count": 24
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Get Single Quote -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="url">/rest/V1/lreifs-multiquotes/quotes/{id}</span>
+                    <span class="endpoint-tag tag-get">Get Quote Details</span>
+                </div>
+                <div class="endpoint-body">
+                    <h4>cURL Example:</h4>
+                    <div class="code-block">
+                        <pre><code>curl -X GET "<?= $baseUrl ?>rest/V1/lreifs-multiquotes/quotes/1" \
+  -H "Authorization: Bearer <?= $adminToken ?>" \
+  -H "Content-Type: application/json"</code></pre>
+                    </div>
+                    <h4>CLI Command:</h4>
+                    <div class="code-block">
+                        <pre><code># Get specific quote details
+bin/magento lreifs:multiquotes:show --quote-id=1 --detailed</code></pre>
+                    </div>
+                    <h4>Response:</h4>
+                    <div class="code-block">
+                        <pre><code>{
+  "success": true,
+  "quote": {
+    "id": 1,
+    "customer_id": 123,
+    "customer_email": "customer@example.com",
+    "status": "pending",
+    "total_amount": 1250.50,
+    "currency": "EUR",
+    "notes": "Bulk order discount applied",
+    "items": [
+      {
+        "product_id": 456,
+        "sku": "LAPTOP-001",
+        "quantity": 2,
+        "unit_price": 625.25,
+        "total": 1250.50
+      }
+    ],
+    "created_at": "2025-10-19T10:30:00Z",
+    "expires_at": "2025-11-18T23:59:59Z"
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create New Quote -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method method-post">POST</span>
+                    <span class="url">/rest/V1/lreifs-multiquotes/create-quote</span>
+                    <span class="endpoint-tag tag-create">Create Quote</span>
+                </div>
+                <div class="endpoint-body">
+                    <h4>cURL Example:</h4>
+                    <div class="code-block">
+                        <pre><code>curl -X POST "<?= $baseUrl ?>rest/V1/lreifs-multiquotes/create-quote" \
+  -H "Authorization: Bearer <?= $adminToken ?>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "request": {
+      "customer_id": 123,
+      "items": [
+        {
+          "sku": "LAPTOP-001",
+          "qty": 2,
+          "price": 625.25
+        }
+      ],
+      "notes": "Special pricing for VIP customer",
+      "expires_at": "2025-12-19T23:59:59Z"
+    }
+  }'</code></pre>
+                    </div>
+                    <h4>CLI Command:</h4>
+                    <div class="code-block">
+                        <pre><code># Create quote via CLI
+bin/magento lreifs:multiquotes:create-immutable \
+  --customer-id=123 \
+  --items='[{"sku":"LAPTOP-001","qty":2,"price":625.25}]' \
+  --expires-at="2025-12-19T23:59:59Z"</code></pre>
+                    </div>
+                    <h4>Response:</h4>
+                    <div class="code-block">
+                        <pre><code>{
+  "success": true,
+  "message": "Quote created successfully",
+  "quote_id": 25,
+  "quote_number": "QTE-2025-000025"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Quote Status -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method method-put">PUT</span>
+                    <span class="url">/rest/V1/lreifs-multiquotes/quotes/{id}/activate</span>
+                    <span class="endpoint-tag tag-update">Activate Quote</span>
+                </div>
+                <div class="endpoint-body">
+                    <h4>cURL Example:</h4>
+                    <div class="code-block">
+                        <pre><code>curl -X PUT "<?= $baseUrl ?>rest/V1/multiquotes/quotes/1/status" \
+  -H "Authorization: Bearer <?= $adminToken ?>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "approved",
+    "admin_notes": "Approved with special terms"
+  }'</code></pre>
+                    </div>
+                    <h4>CLI Command:</h4>
+                    <div class="code-block">
+                        <pre><code># Approve quote
+bin/magento lreifs:multiquotes:approve --quote-id=1 --notes="Approved with special terms"
+
+# Reject quote
+bin/magento lreifs:multiquotes:reject --quote-id=1 --reason="Price too high"</code></pre>
+                    </div>
+                    <h4>Response:</h4>
+                    <div class="code-block">
+                        <pre><code>{
+  "success": true,
+  "message": "Quote status updated successfully",
+  "new_status": "approved"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Quote -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method method-delete">DELETE</span>
+                    <span class="url">/rest/V1/lreifs-multiquotes/quotes/{id}/delete</span>
+                    <span class="endpoint-tag tag-delete">Delete Quote</span>
+                </div>
+                <div class="endpoint-body">
+                    <h4>cURL Example:</h4>
+                    <div class="code-block">
+                        <pre><code>curl -X DELETE "<?= $baseUrl ?>rest/V1/multiquotes/quotes/1" \
+  -H "Authorization: Bearer <?= $adminToken ?>" \
+  -H "Content-Type: application/json"</code></pre>
+                    </div>
+                    <h4>CLI Command:</h4>
+                    <div class="code-block">
+                        <pre><code># Delete quote (soft delete)
+bin/magento lreifs:multiquotes:delete --quote-id=1 --reason="Customer request"
+
+# Force delete (permanent)
+bin/magento lreifs:multiquotes:delete --quote-id=1 --force</code></pre>
+                    </div>
+                    <h4>Response:</h4>
+                    <div class="code-block">
+                        <pre><code>{
+  "success": true,
+  "message": "Quote deleted successfully"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rate Limiting Section -->
+    <section id="rate-limiting" class="api-section">
+        <div class="section-header">
+            <h2><i class="icon-rate">⚡</i> Rate Limiting & Performance</h2>
+            <span class="section-badge">Performance</span>
+        </div>
+        <div class="section-content">
+            <p class="section-description">API rate limiting controls and performance monitoring endpoints.</p>
+            
+            <!-- Get Rate Limit Status -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method method-get">GET</span>
+                    <span class="url">/rest/V1/multiquotes/rate-limit/status</span>
+                    <span class="endpoint-tag tag-info">Rate Status</span>
+                </div>
+                <div class="endpoint-body">
+                    <h4>cURL Example:</h4>
+                    <div class="code-block">
+                        <pre><code>curl -X GET "<?= $baseUrl ?>rest/V1/multiquotes/rate-limit/status" \
+  -H "Authorization: Bearer <?= $adminToken ?>" \
+  -H "Content-Type: application/json"</code></pre>
+                    </div>
+                    <h4>CLI Command:</h4>
+                    <div class="code-block">
+                        <pre><code># Check rate limiting status
+bin/magento lreifs:multiquotes:rate-limit:status
+
+# Reset rate limits for IP
+bin/magento lreifs:multiquotes:rate-limit:reset --ip=192.168.1.100</code></pre>
+                    </div>
+                    <h4>Response:</h4>
+                    <div class="code-block">
+                        <pre><code>{
+  "success": true,
+  "rate_limit": {
+    "requests_per_hour": 1000,
+    "remaining_requests": 847,
+    "reset_time": "2025-10-19T11:00:00Z",
+    "current_usage": 153
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CLI Commands Section -->
+    <section id="cli-commands" class="api-section">
+        <div class="section-header">
+            <h2><i class="icon-cli">⌨️</i> CLI Commands Reference</h2>
+            <span class="section-badge">Development</span>
+        </div>
+        <div class="section-content">
+            <p class="section-description">Custom CLI commands for testing and managing the Multiquotes system.</p>
+            
+            <div class="cli-commands-grid">
+                <div class="cli-section">
+                    <h4>Quote Management</h4>
+                    <div class="code-block">
+                        <pre><code># List all quotes
+bin/magento lreifs:multiquotes:list
+
+# Get quote details
+bin/magento lreifs:multiquotes:show --quote-id=1
+
+# Create new quote
+bin/magento lreifs:multiquotes:create --customer-id=123 --product-id=456 --quantity=2
+
+# Approve quote
+bin/magento lreifs:multiquotes:approve --quote-id=1
+
+# Reject quote
+bin/magento lreifs:multiquotes:reject --quote-id=1
+
+# Export quotes to CSV
+bin/magento lreifs:multiquotes:export --format=csv --status=pending
+
+# Process expired quotes (NEW)
+bin/magento lreifs:quotes:expire --dry-run --batch-size=50
+
+# Create quote with expiration date
+bin/magento lreifs:multiquotes:create-immutable \
+  --customer-id=123 \
+  --expires-at="2025-12-31T23:59:59Z" \
+  --items='[{"sku":"product-001","qty":2,"price":99.99}]'</code></pre>
+                    </div>
+                </div>
+
+                <div class="cli-section">
+                    <h4>Rate Limiting</h4>
+                    <div class="code-block">
+                        <pre><code># Check rate limit status
+bin/magento lreifs:multiquotes:rate-limit:status
+
+# Reset rate limits
+bin/magento lreifs:multiquotes:rate-limit:reset --ip=all
+
+# Configure rate limits
+bin/magento lreifs:multiquotes:rate-limit:config --requests-per-hour=1200</code></pre>
+                    </div>
+                </div>
+
+                <div class="cli-section">
+                    <h4>System Maintenance</h4>
+                    <div class="code-block">
+                        <pre><code># Clean expired quotes
+bin/magento lreifs:multiquotes:cleanup --expired
+
+# Generate test data
+bin/magento lreifs:multiquotes:generate-test-data --count=50
+
+# Validate system integrity
+bin/magento lreifs:multiquotes:validate
+
+# Performance report
+bin/magento lreifs:multiquotes:performance-report</code></pre>
+                    </div>
+                </div>
+            </div>
+    </section>
+
+    <!-- Error Handling Section -->
+    <section id="errors" class="api-section">
+        <div class="section-header">
+            <h2><i class="icon-error">⚠️</i> Error Handling</h2>
+            <span class="section-badge">Reference</span>
+        </div>
+        <div class="section-content">
+            <p class="section-description">Common error responses and troubleshooting information for the Multiquotes API.</p>
+            
+            <div class="error-codes">
+                <div class="error-category">
+                    <h4>Authentication Errors (401-403)</h4>
+                    <div class="error-list">
+                        <div class="error-item">
+                            <code class="error-code">401</code>
+                            <div class="error-details">
+                                <strong>Unauthorized</strong>
+                                <p>Invalid or missing authentication token</p>
+                                <div class="code-block">
+                                    <pre><code>{
+  "error": true,
+  "message": "Consumer is not authorized to access %resources",
+  "parameters": { "resources": "Lreifs_Multiquotes::quotes" }
+}</code></pre>
+                                </div>
+                                <div class="error-solution">
+                                    <strong>Solution:</strong> Ensure you include a valid admin token in the Authorization header.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="error-item">
+                            <code class="error-code">403</code>
+                            <div class="error-details">
+                                <strong>Forbidden</strong>
+                                <p>Insufficient permissions for the requested operation</p>
+                                <div class="code-block">
+                                    <pre><code>{
+  "error": true,
+  "message": "Access denied. Admin role required for this operation."
+}</code></pre>
+                                </div>
+                                <div class="error-solution">
+                                    <strong>Solution:</strong> Verify the admin user has the necessary ACL permissions for Multiquotes.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="error-category">
+                    <h4>Validation Errors (422)</h4>
+                    <div class="error-list">
+                        <div class="error-item">
+                            <code class="error-code">422</code>
+                            <div class="error-details">
+                                <strong>Validation Failed</strong>
+                                <p>Invalid input data or missing required fields</p>
+                                <div class="code-block">
+                                    <pre><code>{
+  "error": true,
+  "message": "Validation failed",
+  "details": [
+    {
+      "field": "customer_id",
+      "message": "Customer ID is required and must be a valid integer"
+    },
+    {
+      "field": "items",
+      "message": "At least one item is required"
+    }
+  ]
+}</code></pre>
+                                </div>
+                                <div class="error-solution">
+                                    <strong>Solution:</strong> Check all required fields and data types in your request.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="error-category">
+                    <h4>Rate Limiting (429)</h4>
+                    <div class="error-list">
+                        <div class="error-item">
+                            <code class="error-code">429</code>
+                            <div class="error-details">
+                                <strong>Too Many Requests</strong>
+                                <p>Rate limit exceeded. Default: 1000 requests/hour</p>
+                                <div class="code-block">
+                                    <pre><code>{
+  "error": true,
+  "message": "Rate limit exceeded. Try again in 3600 seconds.",
+  "retry_after": 3600,
+  "limit": 1000,
+  "remaining": 0
+}</code></pre>
+                                </div>
+                                <div class="error-solution">
+                                    <strong>Solution:</strong> Wait for the rate limit to reset or contact support for higher limits.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="error-category">
+                    <h4>Resource Not Found (404)</h4>
+                    <div class="error-list">
+                        <div class="error-item">
+                            <code class="error-code">404</code>
+                            <div class="error-details">
+                                <strong>Quote Not Found</strong>
+                                <p>The requested quote does not exist</p>
+                                <div class="code-block">
+                                    <pre><code>{
+  "error": true,
+  "message": "Quote with ID 999 not found"
+}</code></pre>
+                                </div>
+                                <div class="error-solution">
+                                    <strong>Solution:</strong> Verify the quote ID exists and is accessible to your account.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testing Tips -->
+            <div class="testing-tips">
+                <h4>Testing & Debugging Tips</h4>
+                <div class="tip-grid">
+                    <div class="tip-card">
+                        <h5>🧪 API Testing</h5>
+                        <p>Use the CLI commands to test endpoints quickly without setting up external tools.</p>
+                        <div class="code-block">
+                            <pre><code>bin/magento lreifs:multiquotes:test-api --endpoint=quotes --method=get</code></pre>
+                        </div>
+                    </div>
+                    <div class="tip-card">
+                        <h5>📊 Debug Mode</h5>
+                        <p>Enable debug logging to see detailed API request/response information.</p>
+                        <div class="code-block">
+                            <pre><code>bin/magento config:set multiquotes/debug/enabled 1
+bin/magento cache:flush</code></pre>
+                        </div>
+                    </div>
+                    <div class="tip-card">
+                        <h5>⚡ Performance</h5>
+                        <p>Monitor API performance and rate limiting with built-in metrics.</p>
+                        <div class="code-block">
+                            <pre><code>bin/magento lreifs:multiquotes:performance-report --last-hours=24</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="api-footer">
+        <div class="footer-content">
+            <p><strong>Need Help?</strong> Use the CLI commands for quick testing or check the system logs for detailed error information.</p>
+            <p class="footer-note">This documentation reflects the actual implemented endpoints. Last updated: October 2025</p>
+            <div class="footer-links">
+                <a href="#authentication">↑ Authentication</a> | 
+                <a href="#quotes">↑ Quotes API</a> | 
+                <a href="#rate-limiting">↑ Rate Limits</a> | 
+                <a href="#cli-commands">↑ CLI Commands</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Additional styles for new sections */
+.cli-commands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.cli-section h4 {
+    color: #2c3e50;
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    border-radius: 4px;
+}
+
+.error-solution {
+    background: #e8f5e8;
+    border-left: 4px solid #4caf50;
+    padding: 12px 16px;
+    margin-top: 12px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+}
+
+.testing-tips {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #e9ecef;
+}
+
+.testing-tips h4 {
+    color: #2c3e50;
+    margin-bottom: 24px;
+    font-size: 18px;
+}
+
+.tip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.tip-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.tip-card h5 {
+    color: #495057;
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.tip-card p {
+    margin: 0 0 12px;
+    color: #6c757d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.footer-links {
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.footer-links a {
+    color: #667eea;
+    text-decoration: none;
+    margin: 0 4px;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+.endpoint-tag.tag-auth { background: #e7f3ff; color: #0066cc; }
+.endpoint-tag.tag-get { background: #e8f5e8; color: #2e7d32; }
+.endpoint-tag.tag-delete { background: #ffebee; color: #c62828; }
+.endpoint-tag.tag-info { background: #f3e5f5; color: #7b1fa2; }
+</style>
+
+<script>
+// Enhanced JavaScript functionality
+function refreshData() {
+    console.log('Refreshing data...');
+    document.querySelector('.api-documentation-container').style.opacity = '0.7';
+    setTimeout(function() {
+        document.querySelector('.api-documentation-container').style.opacity = '1';
+    }, 1000);
+}
+
+// Smooth scrolling for navigation
+document.querySelectorAll('.nav-item').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+            targetElement.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add active state to navigation items
+window.addEventListener('scroll', function() {
+    const sections = document.querySelectorAll('.api-section');
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    let currentSection = '';
+    sections.forEach(function(section) {
+        const sectionTop = section.getBoundingClientRect().top;
+        if (sectionTop <= 100) {
+            currentSection = section.getAttribute('id');
+        }
+    });
+    
+    navItems.forEach(function(item) {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + currentSection) {
+            item.classList.add('active');
+        }
+    });
+});
+
+// Copy code functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('API Documentation loaded successfully');
+    
+    // Add copy buttons to code blocks
+    document.querySelectorAll('.code-block').forEach(function(codeBlock) {
+        const copyButton = document.createElement('button');
+        copyButton.textContent = '📋 Copy';
+        copyButton.className = 'copy-button';
+        copyButton.style.cssText = 'position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer;';
+        
+        codeBlock.style.position = 'relative';
+        codeBlock.appendChild(copyButton);
+        
+        copyButton.addEventListener('click', function() {
+            const code = codeBlock.querySelector('code').textContent;
+            navigator.clipboard.writeText(code).then(function() {
+                copyButton.textContent = '✅ Copied!';
+                setTimeout(function() {
+                    copyButton.textContent = '📋 Copy';
+                }, 2000);
+            });
+        });
+    });
+});
+</script>

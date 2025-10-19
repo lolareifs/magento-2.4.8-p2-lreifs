@@ -1,0 +1,347 @@
+<?php
+/**
+ * @var $block \Lreifs\Multiquotes\Block\Adminhtml\Quotes\View
+ * @var $quoteExtension \Lreifs\Multiquotes\Api\Data\QuoteExtensionInterface
+ * @var $quote \Magento\Quote\Api\Data\CartInterface
+ * @var $customer \Magento\Customer\Api\Data\CustomerInterface
+ */
+
+$quoteExtension = $block->getQuoteExtension();
+$quote = $block->getQuote();
+$customer = $block->getCustomer();
+
+if (!$quoteExtension) {
+    echo '<div class="message message-error error"><div class="message-inner"><div class="message-content">' . __('Quote extension not found.') . '</div></div></div>';
+    return;
+}
+?>
+
+<div class="page-main-actions">
+    <div class="page-actions-buttons">
+        <button onclick="setLocation('<?= $block->escapeUrl($block->getBackUrl()) ?>')" 
+                class="back" type="button">
+            <span><?= $block->escapeHtml(__('Back')) ?></span>
+        </button>
+        <?php if ($quoteExtension->getStatus() !== 'converted' && !$quoteExtension->getIsImmutable()): ?>
+        <button onclick="setLocation('<?= $block->escapeUrl($block->getEditUrl()) ?>')" 
+                class="edit primary" type="button">
+            <span><?= $block->escapeHtml(__('Edit')) ?></span>
+        </button>
+        <?php endif; ?>
+        <button onclick="deleteConfirm('<?= $block->escapeJs(__('Are you sure you want to delete this quote extension?')) ?>', 
+                        '<?= $block->escapeUrl($block->getDeleteUrl()) ?>')" 
+                class="delete" type="button">
+            <span><?= $block->escapeHtml(__('Delete')) ?></span>
+        </button>
+    </div>
+</div>
+
+<div class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Quote Extension Information')) ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item quote-extension-information">
+            <div class="admin__page-section-item-title">
+                <span class="title"><?= $block->escapeHtml(__('General Information')) ?></span>
+            </div>
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary">
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Extension ID')) ?></th>
+                        <td><?= $block->escapeHtml($quoteExtension->getEntityId()) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Quote ID')) ?></th>
+                        <td><?= $block->escapeHtml($quoteExtension->getQuoteId()) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Status')) ?></th>
+                        <td>
+                            <?php
+                            $statusLabels = [
+                                'draft' => __('Draft'),
+                                'active' => __('Active'),
+                                'inactive' => __('Inactive'),
+                                'expired' => __('Expired'),
+                                'converted' => __('Converted')
+                            ];
+                            $statusClass = [
+                                'draft' => 'grid-severity-minor',
+                                'active' => 'grid-severity-notice',
+                                'inactive' => 'grid-severity-minor',
+                                'expired' => 'grid-severity-critical',
+                                'converted' => 'grid-severity-notice'
+                            ];
+                            $status = $quoteExtension->getStatus();
+                            ?>
+                            <span class="<?= $statusClass[$status] ?? 'grid-severity-minor' ?>">
+                                <span><?= $block->escapeHtml($statusLabels[$status] ?? ucfirst($status)) ?></span>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Is Immutable')) ?></th>
+                        <td>
+                            <?php if ($quoteExtension->getIsImmutable()): ?>
+                                <span class="grid-severity-critical"><span><?= $block->escapeHtml(__('Yes')) ?></span></span>
+                            <?php else: ?>
+                                <span class="grid-severity-notice"><span><?= $block->escapeHtml(__('No')) ?></span></span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php if ($quoteExtension->getLockedAt()): ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Locked At')) ?></th>
+                        <td><?= $block->escapeHtml($block->formatDate($quoteExtension->getLockedAt(), \IntlDateFormatter::MEDIUM, true)) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if ($quoteExtension->getExpiresAt()): ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Expires At')) ?></th>
+                        <td>
+                            <?php
+                            $expiresAt = new \DateTime($quoteExtension->getExpiresAt());
+                            $now = new \DateTime();
+                            $isExpired = $expiresAt < $now;
+                            ?>
+                            <?php if ($isExpired): ?>
+                                <span class="grid-severity-critical">
+                                    <span><?= $block->escapeHtml($block->formatDate($quoteExtension->getExpiresAt(), \IntlDateFormatter::MEDIUM, true)) ?> (<?= $block->escapeHtml(__('Expired')) ?>)</span>
+                                </span>
+                            <?php else: ?>
+                                <?= $block->escapeHtml($block->formatDate($quoteExtension->getExpiresAt(), \IntlDateFormatter::MEDIUM, true)) ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Created At')) ?></th>
+                        <td><?= $block->escapeHtml($block->formatDate($quoteExtension->getCreatedAt(), \IntlDateFormatter::MEDIUM, true)) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Updated At')) ?></th>
+                        <td><?= $block->escapeHtml($block->formatDate($quoteExtension->getUpdatedAt(), \IntlDateFormatter::MEDIUM, true)) ?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php if ($customer): ?>
+<div class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Customer Information')) ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item customer-information">
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary">
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Customer ID')) ?></th>
+                        <td><?= $block->escapeHtml($customer->getId()) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Name')) ?></th>
+                        <td><?= $block->escapeHtml($customer->getFirstname() . ' ' . $customer->getLastname()) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Email')) ?></th>
+                        <td>
+                            <a href="mailto:<?= $block->escapeHtmlAttr($customer->getEmail()) ?>">
+                                <?= $block->escapeHtml($customer->getEmail()) ?>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($quote): ?>
+<div class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Quote Information')) ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item quote-information">
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary">
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Quote ID')) ?></th>
+                        <td><?= $block->escapeHtml($quote->getId()) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Items Count')) ?></th>
+                        <td><?= $block->escapeHtml($quote->getItemsCount()) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Items Qty')) ?></th>
+                        <td><?= $block->escapeHtml($quote->getItemsQty()) ?></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Subtotal')) ?></th>
+                        <td><?= $block->formatCurrency($quote->getSubtotal()) ?></td>
+                    </tr>
+                    <?php if ($quote->getTaxAmount() > 0): ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Tax Amount')) ?></th>
+                        <td><?= $block->formatCurrency($quote->getTaxAmount()) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if ($quote->getShippingAmount() > 0): ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Shipping Amount')) ?></th>
+                        <td><?= $block->formatCurrency($quote->getShippingAmount()) ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Grand Total')) ?></th>
+                        <td><strong><?= $block->formatCurrency($quote->getGrandTotal()) ?></strong></td>
+                    </tr>
+                    <tr>
+                        <th><?= $block->escapeHtml(__('Currency')) ?></th>
+                        <td><?= $block->escapeHtml($quote->getQuoteCurrencyCode()) ?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php if ($quote->getAllItems()): ?>
+<div class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Quote Items')) ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item quote-items">
+            <div class="admin__page-section-item-content">
+                <div class="admin__data-grid-wrap admin__data-grid-wrap-static">
+                    <table class="admin__data-grid-table">
+                        <thead>
+                            <tr class="data-grid-tr">
+                                <th class="data-grid-th"><?= $block->escapeHtml(__('Product')) ?></th>
+                                <th class="data-grid-th"><?= $block->escapeHtml(__('SKU')) ?></th>
+                                <th class="data-grid-th"><?= $block->escapeHtml(__('Price')) ?></th>
+                                <th class="data-grid-th"><?= $block->escapeHtml(__('Qty')) ?></th>
+                                <th class="data-grid-th"><?= $block->escapeHtml(__('Subtotal')) ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($quote->getAllItems() as $item): ?>
+                            <tr class="data-grid-tr">
+                                <td class="data-grid-td"><?= $block->escapeHtml($item->getName()) ?></td>
+                                <td class="data-grid-td"><?= $block->escapeHtml($item->getSku()) ?></td>
+                                <td class="data-grid-td"><?= $block->formatCurrency($item->getPrice()) ?></td>
+                                <td class="data-grid-td"><?= $block->escapeHtml($item->getQty()) ?></td>
+                                <td class="data-grid-td"><?= $block->formatCurrency($item->getRowTotal()) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+<?php endif; ?>
+
+<?php if ($quoteExtension->getNotes()): ?>
+<div class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Notes')) ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item notes">
+            <div class="admin__page-section-item-content">
+                <div class="admin__control-textarea">
+                    <?= $block->escapeHtml($quoteExtension->getNotes()) ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<style>
+.quote-extension-information table.admin__table-secondary,
+.customer-information table.admin__table-secondary,
+.quote-information table.admin__table-secondary {
+    width: 100%;
+}
+
+.quote-extension-information table.admin__table-secondary th,
+.customer-information table.admin__table-secondary th,
+.quote-information table.admin__table-secondary th {
+    width: 200px;
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 1px solid #e3e3e3;
+}
+
+.quote-extension-information table.admin__table-secondary td,
+.customer-information table.admin__table-secondary td,
+.quote-information table.admin__table-secondary td {
+    padding: 1rem;
+    border-bottom: 1px solid #e3e3e3;
+}
+
+.admin__data-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin__data-grid-table th,
+.admin__data-grid-table td {
+    padding: 1rem;
+    border: 1px solid #e3e3e3;
+    text-align: left;
+}
+
+.admin__data-grid-table th {
+    background: #f8f8f8;
+    font-weight: 600;
+}
+
+.admin__data-grid-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.page-main-actions {
+    margin-bottom: 2rem;
+}
+
+.page-actions-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.page-actions-buttons button {
+    padding: 1rem 2rem;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.page-actions-buttons button.primary {
+    background: #eb5202;
+    color: #fff;
+    border-color: #eb5202;
+}
+
+.page-actions-buttons button.delete {
+    background: #e22626;
+    color: #fff;
+    border-color: #e22626;
+}
+
+.page-actions-buttons button:hover {
+    opacity: 0.8;
+}
+</style>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes Module v1.0.0 - Cron Configuration
+ * 
+ * Configures automatic expiration processing for immutable quotes.
+ * Runs every 15 minutes to ensure timely processing of expired quotes.
+ * 
+ * Copyright © Lreifs All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    
+    <group id="default">
+        <!-- Process Expired Quotes - Runs every 15 minutes -->
+        <job name="lreifs_multiquotes_expire_quotes" 
+             instance="Lreifs\Multiquotes\Cron\ExpireQuotes" 
+             method="execute">
+            <schedule>*/15 * * * *</schedule>
+        </job>
+        
+        <!-- Cleanup Old Audit Logs - Runs daily at 2:30 AM -->
+        <job name="lreifs_multiquotes_cleanup_audit_logs" 
+             instance="Lreifs\Multiquotes\Cron\CleanupAuditLogs" 
+             method="execute">
+            <schedule>30 2 * * *</schedule>
+        </job>
+        
+        <!-- Send Expiration Notifications - Runs every hour -->
+        <job name="lreifs_multiquotes_expiration_notifications" 
+             instance="Lreifs\Multiquotes\Cron\ExpirationNotifications" 
+             method="execute">
+            <schedule>0 * * * *</schedule>
+        </job>
+    </group>
+</config>
