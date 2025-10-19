@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Lreifs Multiquotes Quotes Layout
+ * Lreifs Multiquotes Immutable Quote View Layout
  * 
  * @category    Lreifs
  * @package     Lreifs_Multiquotes
@@ -13,11 +13,13 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <title>Manage Immutable Quotes</title>
+        <title>View Immutable Quote</title>
     </head>
     <body>
         <referenceContainer name="content">
-            <uiComponent name="lreifs_multiquotes_grid"/>
+            <block class="Lreifs\Multiquotes\Block\Adminhtml\Quotes\View" 
+                   name="multiquotes.immutable.view" 
+                   template="Lreifs_Multiquotes::quotes/view.phtml"/>
         </referenceContainer>
     </body>
 </page>

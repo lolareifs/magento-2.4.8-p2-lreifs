@@ -76,6 +76,13 @@
         </arguments>
     </type>
 
+    <!-- Service Layer Dependencies Configuration -->
+    <type name="Lreifs\Multiquotes\Service\QuoteExtensionManagement">
+        <arguments>
+            <argument name="expirationService" xsi:type="object">Lreifs\Multiquotes\Service\ExpirationService</argument>
+        </arguments>
+    </type>
+
     <type name="Lreifs\Multiquotes\Service\Audit\AuditLogger">
         <arguments>
             <argument name="logger" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagementLogger</argument>
@@ -92,6 +99,7 @@
                 <item name="lreifs_list_customer_quotes" xsi:type="object">Lreifs\Multiquotes\Console\Command\ListCustomerQuotesCommand</item>
                 <item name="lreifs_delete_quote" xsi:type="object">Lreifs\Multiquotes\Console\Command\DeleteQuoteCommand</item>
                 <item name="lreifs_expire_quotes" xsi:type="object">Lreifs\Multiquotes\Console\Command\ExpireQuotesCommand</item>
+                <item name="lreifs_update_expired_quotes" xsi:type="object">Lreifs\Multiquotes\Console\Command\UpdateExpiredQuotesCommand</item>
             </argument>
         </arguments>
     </type>

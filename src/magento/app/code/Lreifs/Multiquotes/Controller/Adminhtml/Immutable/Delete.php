@@ -1,7 +1,6 @@
 <?php
 /**
- * Lreifs Multiquotes Delete Controller
- * 
+ * Lreifs Multiquotes Delete Immutable Quote Controller
  * @category    Lreifs
  * @package     Lreifs_Multiquotes
  * @author      Lola Reifs <lola@reifs.com>
@@ -9,7 +8,7 @@
  * @license     https://opensource.org/licenses/MIT MIT License
  */
 
-namespace Lreifs\Multiquotes\Controller\Adminhtml\Quotes;
+namespace Lreifs\Multiquotes\Controller\Adminhtml\Immutable;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -20,7 +19,7 @@ class Delete extends Action
     /**
      * Authorization level of a basic admin session
      */
-    const ADMIN_RESOURCE = 'Lreifs_Multiquotes::quote_extension_delete';
+    const ADMIN_RESOURCE = 'Lreifs_Multiquotes::immutable_delete';
 
     /**
      * @var QuoteExtensionRepositoryInterface
@@ -40,26 +39,24 @@ class Delete extends Action
     }
 
     /**
-     * Delete action
-     *
+     * Delete action for immutable quote
      * @return \Magento\Backend\Model\View\Result\Redirect
      */
     public function execute()
     {
         $id = $this->getRequest()->getParam('id');
         $resultRedirect = $this->resultRedirectFactory->create();
-        
         if ($id) {
             try {
                 $this->quoteExtensionRepository->deleteById($id);
-                $this->messageManager->addSuccessMessage(__('You deleted the quote extension.'));
+                $this->messageManager->addSuccessMessage(__('You deleted the immutable quote extension.'));
             } catch (\Exception $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());
             }
         } else {
-            $this->messageManager->addErrorMessage(__('We can\'t find a quote extension to delete.'));
+            $this->messageManager->addErrorMessage(__('We can\'t find an immutable quote extension to delete.'));
         }
-        
-        return $resultRedirect->setPath('*/*/');
+        $resultRedirect->setPath('multiquotes/immutable/index');
+        return $resultRedirect;
     }
 }

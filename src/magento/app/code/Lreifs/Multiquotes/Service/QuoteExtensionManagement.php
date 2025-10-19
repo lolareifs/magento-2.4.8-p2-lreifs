@@ -30,6 +30,8 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Psr\Log\LoggerInterface;
+use Lreifs\Multiquotes\Service\ExpirationService;
+use Lreifs\Multiquotes\Model\Source\Status as QuoteStatus;
 
 /**
  * Quote Extension Management Service
@@ -53,7 +55,8 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
         private readonly StoreManagerInterface $storeManager,
         private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
         private readonly QuoteCollectionFactory $quoteCollectionFactory,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly ExpirationService $expirationService
     ) {}
 
     /**
@@ -124,6 +127,12 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
             // Set expiration date if provided
             if ($request->getExpiresAt() !== null) {
                 $quoteExtension->setExpiresAt($request->getExpiresAt());
+                
+                // Check if the quote is already expired at creation time
+                if ($this->expirationService->isQuoteExpired($quoteExtension)) {
+                    $quoteExtension->setStatus(QuoteStatus::STATUS_EXPIRED);
+                    $quoteExtension->setIsActive(false);  // Expired quotes should be inactive
+                }
             }
             
             // Set optional properties
@@ -239,6 +248,12 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
             // Set expiration date if provided
             if ($request->getExpiresAt() !== null) {
                 $quoteExtension->setExpiresAt($request->getExpiresAt());
+                
+                // Check if the quote is already expired at creation time
+                if ($this->expirationService->isQuoteExpired($quoteExtension)) {
+                    $quoteExtension->setStatus(QuoteStatus::STATUS_EXPIRED);
+                    $quoteExtension->setIsActive(false);  // Expired quotes should be inactive
+                }
             }
             
             // Set optional properties from request
@@ -291,39 +306,28 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
     public function activateQuote(int $quoteId, ?int $adminUserId = null): bool
     {
         try {
+            // First, update any expired quotes in the system
+            $this->expirationService->updateExpiredQuotes();
+
             $extension = $this->quoteExtensionRepository->getByQuoteId($quoteId);
             
             if (!$extension->isImmutable()) {
                 throw new LocalizedException(__('Quote is not immutable and cannot be activated'));
             }
 
+            // Check if this specific quote is expired
+            if ($this->expirationService->isQuoteExpired($extension)) {
+                throw new LocalizedException(__('Cannot activate expired quote. Expires at: %1', $extension->getExpiresAt()));
+            }
+
             $customerId = $extension->getCustomerId();
             
-            // First, deactivate all other quotes for this customer
-            $customerQuotes = $this->quoteExtensionRepository->getImmutableQuotesByCustomer($customerId);
-            $deactivatedQuotes = [];
-            
-            foreach ($customerQuotes as $customerQuote) {
-                if ($customerQuote->getQuoteId() != $quoteId && $customerQuote->getIsActive()) {
-                    $customerQuote->setIsActive(false);
-                    $customerQuote->setStatus('inactive'); // Update status to inactive
-                    $this->quoteExtensionRepository->save($customerQuote);
-                    $deactivatedQuotes[] = $customerQuote->getQuoteId();
-                    
-                    // Log deactivation of other quotes
-                    $this->auditLogger->logQuoteDeactivation($customerQuote, [
-                        'admin_user_id' => $adminUserId,
-                        'deactivated_at' => date('Y-m-d H:i:s'),
-                        'reason' => 'New quote activated',
-                        'new_active_quote_id' => $quoteId,
-                        'auto_deactivated' => true
-                    ]);
-                }
-            }
+            // Deactivate all other quotes for this customer (only one active quote per customer)
+            $deactivatedCount = $this->expirationService->deactivateOtherCustomerQuotes($customerId, $quoteId);
             
             // Now activate the target quote
             $extension->setIsActive(true);
-            $extension->setStatus('active'); // Update status to active
+            $extension->setStatus(QuoteStatus::STATUS_ACTIVE); // Update status to active
             $this->quoteExtensionRepository->save($extension);
             
             // Set this quote as the customer's active cart in Magento
@@ -333,7 +337,7 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
             $this->auditLogger->logQuoteActivation($extension, [
                 'admin_user_id' => $adminUserId,
                 'activated_at' => date('Y-m-d H:i:s'),
-                'deactivated_quotes' => $deactivatedQuotes,
+                'deactivated_quotes' => $deactivatedCount,
                 'is_primary_active' => true
             ]);
 
@@ -342,7 +346,7 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
                 'quote_extension' => $extension,
                 'admin_user_id' => $adminUserId,
                 'timestamp' => new \DateTime(),
-                'deactivated_quotes' => $deactivatedQuotes
+                'deactivated_quotes' => $deactivatedCount
             ]);
 
             $this->logger->info('Immutable quote activated as customer primary cart', [
@@ -350,7 +354,7 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
                 'extension_id' => $extension->getEntityId(),
                 'customer_id' => $customerId,
                 'admin_user_id' => $adminUserId,
-                'deactivated_quotes' => $deactivatedQuotes
+                'deactivated_quotes' => $deactivatedCount
             ]);
 
             return true;
@@ -437,7 +441,7 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
 
             // Deactivate the quote extension
             $extension->setIsActive(false);
-            $extension->setStatus('inactive'); // Update status to inactive
+            $extension->setStatus(QuoteStatus::STATUS_INACTIVE); // Update status to inactive
             $this->quoteExtensionRepository->save($extension);
             
             // Also deactivate the underlying Magento quote
@@ -471,6 +475,58 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
         } catch (\Exception $e) {
             $this->logger->error('Failed to deactivate quote', [
                 'quote_id' => $quoteId,
+                'admin_user_id' => $adminUserId,
+                'error' => $e->getMessage()
+            ]);
+
+            throw new LocalizedException(
+                __('Unable to deactivate quote: %1', $e->getMessage()),
+                $e
+            );
+        }
+    }
+
+    /**
+     * Activate quote by extension ID
+     */
+    public function activateQuoteByExtensionId(int $extensionId, ?int $adminUserId = null): bool
+    {
+        try {
+            // Get the extension first to find the quote_id
+            $extension = $this->quoteExtensionRepository->get($extensionId);
+            
+            // Delegate to the main activate method using quote_id
+            return $this->activateQuote($extension->getQuoteId(), $adminUserId);
+            
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to activate quote by extension ID', [
+                'extension_id' => $extensionId,
+                'admin_user_id' => $adminUserId,
+                'error' => $e->getMessage()
+            ]);
+
+            throw new LocalizedException(
+                __('Unable to activate quote: %1', $e->getMessage()),
+                $e
+            );
+        }
+    }
+
+    /**
+     * Deactivate quote by extension ID
+     */
+    public function deactivateQuoteByExtensionId(int $extensionId, ?int $adminUserId = null): bool
+    {
+        try {
+            // Get the extension first to find the quote_id
+            $extension = $this->quoteExtensionRepository->get($extensionId);
+            
+            // Delegate to the main deactivate method using quote_id
+            return $this->deactivateQuote($extension->getQuoteId(), $adminUserId);
+            
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to deactivate quote by extension ID', [
+                'extension_id' => $extensionId,
                 'admin_user_id' => $adminUserId,
                 'error' => $e->getMessage()
             ]);

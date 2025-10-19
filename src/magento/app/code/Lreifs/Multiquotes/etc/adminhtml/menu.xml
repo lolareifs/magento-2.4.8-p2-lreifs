@@ -1,51 +1,9 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Lreifs Multiquotes Admin Menu Configuration
- * 
- * @category    Lreifs
- * @package     Lreifs_Multiquotes
- * @author      Lola Reifs <lola@reifs.com>
- * @copyright   2025 Lreifs
- * @license     https://opensource.org/licenses/MIT MIT License
- */
--->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
-    <menu>
-        <!-- Main Multiquotes Tab - positioned at the beginning -->
-        <add id="Lreifs_Multiquotes::main" 
-             title="LREIFS" 
-             module="Lreifs_Multiquotes" 
-             sortOrder="10" 
-             resource="Lreifs_Multiquotes::main"/>
-        
-        <!-- Quotes Management submenu -->
-        <add id="Lreifs_Multiquotes::quotes" 
-             title="Manage Quotes" 
-             module="Lreifs_Multiquotes" 
-             sortOrder="10" 
-             parent="Lreifs_Multiquotes::main" 
-             action="multiquotes/quotes/index" 
-             resource="Lreifs_Multiquotes::quotes"/>
-        
-        
-        <!-- API Documentation submenu -->
-        <add id="Lreifs_Multiquotes::api_docs" 
-             title="API Documentation" 
-             module="Lreifs_Multiquotes" 
-             sortOrder="20" 
-             parent="Lreifs_Multiquotes::main" 
-             action="multiquotes/api/documentation" 
-             resource="Lreifs_Multiquotes::api_docs"/>
-        
-        <!-- Configuration submenu -->
-        <add id="Lreifs_Multiquotes::configuration" 
-             title="Configuration" 
-             module="Lreifs_Multiquotes" 
-             sortOrder="30" 
-             parent="Lreifs_Multiquotes::main" 
-             action="adminhtml/system_config/edit/section/multiquotes" 
-             resource="Lreifs_Multiquotes::configuration"/>
-    </menu>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+     <menu>
+          <add id="Lreifs_Multiquotes::main" title="LREIFS" module="Lreifs_Multiquotes" sortOrder="10" resource="Lreifs_Multiquotes::main"/>
+          <add id="Lreifs_Multiquotes::immutable_quotes" title="Immutable Quotes" module="Lreifs_Multiquotes" sortOrder="15" parent="Lreifs_Multiquotes::main" action="multiquotes/immutable/index" resource="Lreifs_Multiquotes::immutable_quotes"/>
+          <add id="Lreifs_Multiquotes::api_docs" title="API Documentation" module="Lreifs_Multiquotes" sortOrder="20" parent="Lreifs_Multiquotes::main" action="multiquotes/api/documentation" resource="Lreifs_Multiquotes::api_docs"/>
+          <add id="Lreifs_Multiquotes::configuration" title="Configuration" module="Lreifs_Multiquotes" sortOrder="30" parent="Lreifs_Multiquotes::main" action="adminhtml/system_config/edit/section/multiquotes" resource="Lreifs_Multiquotes::configuration"/>
+     </menu>
 </config>

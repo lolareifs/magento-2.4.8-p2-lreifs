@@ -106,6 +106,48 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
     }
 
     /**
+     * Activate quote by extension ID via REST API
+     */
+    public function activateQuoteByExtensionId(int $extensionId, ?int $adminUserId = null): bool
+    {
+        $currentAdminUserId = $adminUserId ?? $this->contextHelper->getCurrentAdminUserId();
+
+        // Log API access
+        $this->auditLogger->logApiAccess(
+            "/V1/lreifs-multiquotes/extensions/{$extensionId}/activate",
+            'POST',
+            array_merge($this->contextHelper->getAuditContext(), [
+                'extension_id' => $extensionId,
+                'admin_user_id' => $currentAdminUserId
+            ])
+        );
+
+        // Delegate to service layer
+        return $this->service->activateQuoteByExtensionId($extensionId, $currentAdminUserId);
+    }
+
+    /**
+     * Deactivate quote by extension ID via REST API
+     */
+    public function deactivateQuoteByExtensionId(int $extensionId, ?int $adminUserId = null): bool
+    {
+        $currentAdminUserId = $adminUserId ?? $this->contextHelper->getCurrentAdminUserId();
+
+        // Log API access
+        $this->auditLogger->logApiAccess(
+            "/V1/lreifs-multiquotes/extensions/{$extensionId}/deactivate",
+            'POST',
+            array_merge($this->contextHelper->getAuditContext(), [
+                'extension_id' => $extensionId,
+                'admin_user_id' => $currentAdminUserId
+            ])
+        );
+
+        // Delegate to service layer
+        return $this->service->deactivateQuoteByExtensionId($extensionId, $currentAdminUserId);
+    }
+
+    /**
      * Get customer quotes via REST API
      */
     public function getCustomerQuotes(int $customerId, ?bool $immutableOnly = null): array

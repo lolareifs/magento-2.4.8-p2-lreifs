@@ -16,11 +16,10 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Lreifs_Multiquotes::main" title="LREIFS" sortOrder="10">
-                    <resource id="Lreifs_Multiquotes::quotes" title="Manage Quotes" sortOrder="10"/>
+                    <resource id="Lreifs_Multiquotes::immutable_quotes" title="Immutable Quotes" sortOrder="15"/>
                     <resource id="Lreifs_Multiquotes::api_docs" title="API Documentation" sortOrder="20"/>
                     <resource id="Lreifs_Multiquotes::configuration" title="Configuration" sortOrder="30"/>
                 </resource>
-                
                 <!-- System Configuration Permissions -->
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">

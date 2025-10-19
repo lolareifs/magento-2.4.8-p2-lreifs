@@ -60,12 +60,6 @@ if (!$quoteExtension) {
             <span><?= $block->escapeHtml(__('🔒 Immutable')) ?></span>
         </button>
         <?php endif; ?>
-        
-        <button onclick="deleteConfirm('<?= $block->escapeJs(__('Are you sure you want to delete this quote extension?')) ?>', 
-                        '<?= $block->escapeUrl($block->getDeleteUrl()) ?>')" 
-                class="delete" type="button">
-            <span><?= $block->escapeHtml(__('Delete')) ?></span>
-        </button>
     </div>
 </div>
 
@@ -93,20 +87,21 @@ if (!$quoteExtension) {
                         <td>
                             <?php
                             $statusLabels = [
-                                'draft' => __('Draft'),
                                 'active' => __('Active'),
                                 'inactive' => __('Inactive'),
                                 'expired' => __('Expired'),
                                 'converted' => __('Converted')
                             ];
                             $statusClass = [
-                                'draft' => 'grid-severity-minor',
                                 'active' => 'grid-severity-notice',
                                 'inactive' => 'grid-severity-minor',
                                 'expired' => 'grid-severity-critical',
                                 'converted' => 'grid-severity-notice'
                             ];
                             $status = $quoteExtension->getStatus();
+                            if ($status === 'draft') {
+                                $status = 'inactive';
+                            }
                             ?>
                             <span class="<?= $statusClass[$status] ?? 'grid-severity-minor' ?>">
                                 <span><?= $block->escapeHtml($statusLabels[$status] ?? ucfirst($status)) ?></span>
@@ -136,11 +131,9 @@ if (!$quoteExtension) {
                             <?php
                             $expiresAt = new \DateTime($quoteExtension->getExpiresAt());
                             $now = new \DateTime();
-                            $isExpired = $expiresAt < $now;
-                            ?>
-                            <?php if ($isExpired): ?>
+                            if ($expiresAt < $now): ?>
                                 <span class="grid-severity-critical">
-                                    <span><?= $block->escapeHtml($block->formatDate($quoteExtension->getExpiresAt(), \IntlDateFormatter::MEDIUM, true)) ?> (<?= $block->escapeHtml(__('Expired')) ?>)</span>
+                                    <?= $block->escapeHtml($block->formatDate($quoteExtension->getExpiresAt(), \IntlDateFormatter::MEDIUM, true)) ?> <strong>(<?= $block->escapeHtml(__('Expired')) ?>)</strong>
                                 </span>
                             <?php else: ?>
                                 <?= $block->escapeHtml($block->formatDate($quoteExtension->getExpiresAt(), \IntlDateFormatter::MEDIUM, true)) ?>
@@ -195,67 +188,10 @@ if (!$quoteExtension) {
 <?php endif; ?>
 
 <?php if ($quote): ?>
+<?php $quote->collectTotals(); ?>
 <div class="admin__page-section">
-    <div class="admin__page-section-title">
-        <span class="title"><?= $block->escapeHtml(__('Quote Information')) ?></span>
-    </div>
-    <div class="admin__page-section-content">
-        <div class="admin__page-section-item quote-information">
-            <div class="admin__page-section-item-content">
-                <table class="admin__table-secondary">
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Quote ID')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getId() ?: __('N/A')) ?></td>
-                    </tr>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Items Count')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getItemsCount() ?: '0') ?></td>
-                    </tr>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Items Qty')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getItemsQty() ?: '0') ?></td>
-                    </tr>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Subtotal')) ?></th>
-                        <td><?= $quote->getSubtotal() !== null ? $block->formatCurrency($quote->getSubtotal()) : __('N/A') ?></td>
-                    </tr>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Base Subtotal')) ?></th>
-                        <td><?= $quote->getBaseSubtotal() !== null ? $block->formatCurrency($quote->getBaseSubtotal()) : __('N/A') ?></td>
-                    </tr>
-                    <?php if ($quote->getTaxAmount() && $quote->getTaxAmount() > 0): ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Tax Amount')) ?></th>
-                        <td><?= $block->formatCurrency($quote->getTaxAmount()) ?></td>
-                    </tr>
-                    <?php endif; ?>
-                    <?php if ($quote->getShippingAmount() && $quote->getShippingAmount() > 0): ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Shipping Amount')) ?></th>
-                        <td><?= $block->formatCurrency($quote->getShippingAmount()) ?></td>
-                    </tr>
-                    <?php endif; ?>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Grand Total')) ?></th>
-                        <td><strong><?= $quote->getGrandTotal() !== null ? $block->formatCurrency($quote->getGrandTotal()) : __('N/A') ?></strong></td>
-                    </tr>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Currency')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getQuoteCurrencyCode() ?: __('N/A')) ?></td>
-                    </tr>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Store ID')) ?></th>
-                        <td><?= $block->escapeHtml($quote->getStoreId() ?: __('N/A')) ?></td>
-                    </tr>
-                    <tr>
-                        <th><?= $block->escapeHtml(__('Is Active')) ?></th>
-                        <td><?= $quote->getIsActive() ? __('Yes') : __('No') ?></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+
+
 
 <?php if ($quote->getAllItems()): ?>
 <div class="admin__page-section">
@@ -284,8 +220,11 @@ if (!$quoteExtension) {
                             <?php if ($items && count($items) > 0): ?>
                                 <?php foreach ($items as $item): ?>
                                 <?php 
-                                $itemSubtotal = $item->getRowTotal() ?: ($item->getPrice() * $item->getQty());
-                                $totalSubtotal += $itemSubtotal;
+                                    $qty = is_numeric($item->getQty()) ? (float)$item->getQty() : 0;
+                                    $price = is_numeric($item->getPrice()) ? (float)$item->getPrice() : 0;
+                                    $rowTotal = is_numeric($item->getRowTotal()) ? (float)$item->getRowTotal() : null;
+                                    $itemSubtotal = $rowTotal !== null ? $rowTotal : ($price * $qty);
+                                    $totalSubtotal += $itemSubtotal;
                                 ?>
                                 <tr class="data-grid-tr">
                                     <td class="data-grid-td">
@@ -296,7 +235,7 @@ if (!$quoteExtension) {
                                     </td>
                                     <td class="data-grid-td"><?= $block->escapeHtml($item->getSku() ?: __('N/A')) ?></td>
                                     <td class="data-grid-td"><?= $item->getPrice() !== null ? $block->formatCurrency($item->getPrice()) : __('N/A') ?></td>
-                                    <td class="data-grid-td"><?= $block->escapeHtml($item->getQty() ?: '0') ?></td>
+                                    <td class="data-grid-td"><?= $block->escapeHtml($qty) ?></td>
                                     <td class="data-grid-td">
                                         <strong><?= $itemSubtotal !== null ? $block->formatCurrency($itemSubtotal) : __('N/A') ?></strong>
                                     </td>
@@ -450,12 +389,6 @@ if (!$quoteExtension) {
     background: #eb5202;
     color: #fff;
     border-color: #eb5202;
-}
-
-.page-actions-buttons button.delete {
-    background: #e22626;
-    color: #fff;
-    border-color: #e22626;
 }
 
 .page-actions-buttons button:hover {

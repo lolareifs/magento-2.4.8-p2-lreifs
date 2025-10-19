@@ -55,13 +55,14 @@ class CustomerName extends Column
                     $customerName = $item['customer_name'] ?? 'Customer #' . $item['customer_id'];
                     $customerEmail = $item['customer_email'] ?? '';
                     
-                    $item[$this->getData('name')] = sprintf(
-                        '<div><strong>%s</strong><br/><small>%s</small></div>',
-                        $customerName,
-                        $customerEmail
-                    );
+                    // Format as plain text: "Name (email)" or just "Name"
+                    if ($customerEmail) {
+                        $item[$this->getData('name')] = $customerName . ' (' . $customerEmail . ')';
+                    } else {
+                        $item[$this->getData('name')] = $customerName;
+                    }
                 } else {
-                    $item[$this->getData('name')] = '<span class="grid-severity-minor"><span>Guest Customer</span></span>';
+                    $item[$this->getData('name')] = 'Guest Customer';
                 }
             }
         }

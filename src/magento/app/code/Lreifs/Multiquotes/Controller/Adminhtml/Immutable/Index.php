@@ -1,6 +1,6 @@
 <?php
 /**
- * Lreifs Multiquotes Quotes Grid Controller
+ * Lreifs Multiquotes Immutable Quotes Controller
  * 
  * @category    Lreifs
  * @package     Lreifs_Multiquotes
@@ -9,7 +9,7 @@
  * @license     https://opensource.org/licenses/MIT MIT License
  */
 
-namespace Lreifs\Multiquotes\Controller\Adminhtml\Quotes;
+namespace Lreifs\Multiquotes\Controller\Adminhtml\Immutable;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
@@ -18,11 +18,11 @@ use Magento\Framework\View\Result\PageFactory;
 class Index extends Action
 {
     /**
-     * Authorization level of a basic admin session
+     * Authorization level
      *
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Lreifs_Multiquotes::quotes';
+    const ADMIN_RESOURCE = 'Lreifs_Multiquotes::immutable_quotes';
 
     /**
      * @var PageFactory
@@ -48,10 +48,10 @@ class Index extends Action
      */
     public function execute()
     {
-        /** @var \Magento\Framework\View\Result\Page $resultPage */
+        /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('Lreifs_Multiquotes::quotes');
-        $resultPage->getConfig()->getTitle()->prepend(__('Manage Inmutable Quotes'));
+        $resultPage->setActiveMenu('Lreifs_Multiquotes::immutable_quotes');
+        $resultPage->getConfig()->getTitle()->prepend(__('Immutable Quotes'));
 
         return $resultPage;
     }

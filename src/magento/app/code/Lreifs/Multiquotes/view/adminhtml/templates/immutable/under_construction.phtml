@@ -1,0 +1,54 @@
+<div class="admin__page-section">
+    <div class="admin__page-section-title">
+        <span class="title">Funcionalidad en desarrollo</span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="message message-notice notice">
+            <div class="message-inner">
+                <div class="message-content">
+                    <strong>La creación de Immutable Quotes desde el panel de administración está en desarrollo.</strong><br><br>
+                    <ul>
+                        <li>Puedes crear un quote inmutable usando el <b>comando CLI</b>:
+                            <pre>bin/magento lreifs:multiquotes:create --customer-id=123 --expires-at="2025-12-31" --immutable --items='[{"sku":"SKU-001","qty":2,"price":100},{"sku":"SKU-002","qty":1,"price":50}]'</pre>
+                        </li>
+                        <li>También puedes usar la <b>colección Postman</b> incluida en el repositorio:
+                            <pre>Lreifs_Multiquotes_API.postman_collection.json</pre>
+                            <b>Ejemplo endpoint:</b>
+                            <pre>POST /rest/V1/lreifs-multiquotes/quotes</pre>
+                            <b>Body ejemplo:</b>
+                            <pre>{
+    "customer_email": "{{customer_email}}",
+        "name": "Multi-Item Quote",
+        "description": "Quote with multiple products",
+        "notes": "Quote created with specific items using enhanced interface",
+        "expires_at": "2025-12-19T23:59:59Z",
+        "customer_reference": "API-MULTI-ITEMS-{{$timestamp}}",
+        "custom_fee": 15.50,
+        "metadata": {
+            "priority": "high",
+            "source": "postman_api",
+            "special_handling": true
+        },
+        "items": [
+            {
+                "sku": "lreifs-test-product-001",
+                "qty": 2,
+                "price": 99.99,
+                "custom_price": true
+            },
+            {
+                "sku": "lreifs-test-product-002",
+                "qty": 1,
+                "price": 149.50,
+                "custom_price": true
+            }
+        ]
+}</pre>
+                    </ul>
+                    <br>
+                    <a href="<?= $block->getUrl('multiquotes/api/documentation') ?>" target="_blank">Ver documentación API</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

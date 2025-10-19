@@ -101,6 +101,36 @@ interface QuoteExtensionManagementInterface
     public function deactivateQuote(int $quoteId, ?int $adminUserId = null): bool;
 
     /**
+     * Activate an immutable quote by extension ID
+     * 
+     * Activates a quote using the quote extension entity_id instead of the core quote_id.
+     * Useful for admin interfaces that work with extension records directly.
+     *
+     * @param int $extensionId The quote extension entity_id to activate
+     * @param int|null $adminUserId Admin user performing the action (auto-detected if null)
+     * @return bool True on successful activation
+     * @throws NoSuchEntityException If the quote extension doesn't exist
+     * @throws LocalizedException If activation fails
+     * @since 1.0.0
+     */
+    public function activateQuoteByExtensionId(int $extensionId, ?int $adminUserId = null): bool;
+
+    /**
+     * Deactivate an immutable quote by extension ID
+     * 
+     * Deactivates a quote using the quote extension entity_id instead of the core quote_id.
+     * Useful for admin interfaces that work with extension records directly.
+     *
+     * @param int $extensionId The quote extension entity_id to deactivate
+     * @param int|null $adminUserId Admin user performing the action (auto-detected if null)
+     * @return bool True on successful deactivation
+     * @throws NoSuchEntityException If the quote extension doesn't exist
+     * @throws LocalizedException If deactivation fails
+     * @since 1.0.0
+     */
+    public function deactivateQuoteByExtensionId(int $extensionId, ?int $adminUserId = null): bool;
+
+    /**
      * Get customer's quotes with optional filtering
      * 
      * Retrieves all quotes associated with a specific customer.

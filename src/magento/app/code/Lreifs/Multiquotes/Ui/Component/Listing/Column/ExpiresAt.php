@@ -60,23 +60,9 @@ class ExpiresAt extends Column
                         
                         // Format the date
                         $formattedDate = $this->timezone->date($expiresAtDate)->format('M j, Y H:i');
-                        
-                        if ($expiresAtDate < $now) {
-                            $item[$this->getData('name')] = '<span class="grid-severity-critical">' . 
-                                $formattedDate . ' <strong>(Expired)</strong></span>';
-                        } else {
-                            // Check if expiring soon (within 24 hours)
-                            $hoursUntilExpiry = ($expiresAtDate->getTimestamp() - $now->getTimestamp()) / 3600;
-                            
-                            if ($hoursUntilExpiry <= 24) {
-                                $item[$this->getData('name')] = '<span class="grid-severity-major">' . 
-                                    $formattedDate . ' <em>(Expiring Soon)</em></span>';
-                            } else {
-                                $item[$this->getData('name')] = $formattedDate;
-                            }
-                        }
+                        $item[$this->getData('name')] = $formattedDate;
                     } catch (\Exception $e) {
-                        $item[$this->getData('name')] = '<span class="grid-severity-minor">Invalid Date</span>';
+                        $item[$this->getData('name')] = '<span class="grid-severity-minor">' . __('Invalid Date') . '</span>';
                     }
                 } else {
                     $item[$this->getData('name')] = '<span class="grid-severity-minor">No Expiration</span>';

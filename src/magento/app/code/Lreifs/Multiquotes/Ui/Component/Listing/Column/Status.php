@@ -45,8 +45,11 @@ class Status extends Column
      */
     private function formatStatusBadge($status)
     {
+        // Treat 'draft' as 'inactive' for badge and label
+        if ($status === 'draft') {
+            $status = 'inactive';
+        }
         $badges = [
-            'draft' => '<span class="grid-severity-minor"><span>Draft</span></span>',
             'active' => '<span class="grid-severity-notice"><span>Active</span></span>',
             'inactive' => '<span class="grid-severity-minor"><span>Inactive</span></span>',
             'expired' => '<span class="grid-severity-critical"><span>Expired</span></span>',
