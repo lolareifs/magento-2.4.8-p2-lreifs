@@ -1,0 +1,519 @@
+{
+	"info": {
+		"_postman_id": "lreifs-multiquotes-api",
+		"name": "Lreifs Multiquotes API - Complete v1.0.0",
+		"description": "Complete API collection for Lreifs Multiquotes module - Immutable quote system for Magento 2. ✅ INITIAL RELEASE v1.0.0: Enterprise-grade implementation with 9 endpoints, advanced filtering, system-wide admin access, comprehensive audit logging. Features: Create quotes with products, Convert existing quotes, Manage status, Complete CRUD operations, Admin system-wide access. Note: Admin user needs proper ACL permissions (Lreifs_Multiquotes::quote_extension_create).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "lreifs-dev"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{admin_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://local.magento",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "customer_email",
+			"value": "Lolareifscarmona+11@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "quote_id",
+			"value": "7",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Get Admin Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const token = pm.response.text().replace(/\"/g, '');",
+									"    pm.collectionVariables.set('admin_token', token);",
+									"    console.log('Admin token saved:', token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"lola123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rest/V1/integration/admin/token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"integration",
+								"admin",
+								"token"
+							]
+						},
+						"description": "Get admin authentication token for API access"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for getting access tokens"
+		},
+		{
+			"name": "📝 Create Quotes",
+			"item": [
+				{
+					"name": "Create Immutable Quote",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request\": {\n        \"customer_email\": \"{{customer_email}}\",\n        \"name\": \"Multi-Item Quote\",\n        \"description\": \"Quote with multiple products\",\n        \"notes\": \"Quote created with specific items using enhanced interface\",\n        \"customer_reference\": \"API-MULTI-ITEMS-{{$timestamp}}\",\n        \"custom_fee\": 15.50,\n        \"metadata\": {\n            \"priority\": \"high\",\n            \"source\": \"postman_api\",\n            \"special_handling\": true\n        },\n        \"items\": [\n            {\n                \"sku\": \"lreifs-test-product-001\",\n                \"qty\": 2,\n                \"price\": 99.99,\n                \"custom_price\": true\n            },\n            {\n                \"sku\": \"lreifs-test-product-002\",\n                \"qty\": 1,\n                \"price\": 149.50,\n                \"custom_price\": true\n            }\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/create-quote",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"create-quote"
+							]
+						},
+						"description": "Create immutable quote with products. Supports both customer_id and customer_email. Enhanced with complete metadata and custom fees."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint for creating NEW immutable quotes with products"
+		},
+		{
+			"name": "🔄 Convert Existing Quotes",
+			"item": [
+				{
+					"name": "Convert Existing Quote to Immutable",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request\": {\n        \"customer_id\": {{customer_id}},\n        \"name\": \"Converted Quote\",\n        \"description\": \"Existing quote converted to immutable\",\n        \"notes\": \"This converts an existing quote (ID {{quote_id}}) to immutable\",\n        \"customer_reference\": \"CONVERTED-QUOTE-{{quote_id}}\",\n        \"custom_fee\": 25.00,\n        \"metadata\": {\n            \"conversion_type\": \"manual\",\n            \"source\": \"postman_api\",\n            \"original_quote_id\": {{quote_id}}\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/quotes/{{quote_id}}/convert",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"quotes",
+								"{{quote_id}}",
+								"convert"
+							]
+						},
+						"description": "Convert an existing quote (with existing quote_id) to immutable"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for converting existing quotes to immutable"
+		},
+		{
+			"name": "📖 Read Quotes",
+			"item": [
+				{
+					"name": "Get Quote Extension by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/quotes/{{quote_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"quotes",
+								"{{quote_id}}"
+							]
+						},
+						"description": "Get quote extension details by quote ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Quotes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rest/V1/customers/{{customer_id}}/lreifs-multiquotes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"customers",
+								"{{customer_id}}",
+								"lreifs-multiquotes"
+							]
+						},
+						"description": "Get all quotes for a specific customer"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All System Quotes (Admin Only)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/all-quotes?page=1&limit=20&sortBy=created_at&sortDirection=desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"all-quotes"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number for pagination"
+								},
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Number of results per page"
+								},
+								{
+									"key": "sortBy",
+									"value": "created_at",
+									"description": "Field to sort by (created_at, quote_id, customer_id, etc.)"
+								},
+								{
+									"key": "sortDirection",
+									"value": "desc",
+									"description": "Sort direction: asc or desc"
+								},
+								{
+									"key": "customer_id",
+									"value": "",
+									"description": "Filter by customer ID (optional)",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "",
+									"description": "Filter by active status: 1 or 0 (optional)",
+									"disabled": true
+								},
+								{
+									"key": "store_id",
+									"value": "",
+									"description": "Filter by store ID (optional)",
+									"disabled": true
+								},
+								{
+									"key": "date_from",
+									"value": "",
+									"description": "Filter from date (YYYY-MM-DD format, optional)",
+									"disabled": true
+								},
+								{
+									"key": "date_to",
+									"value": "",
+									"description": "Filter to date (YYYY-MM-DD format, optional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all immutable quotes in the system with advanced filtering options. Admin-only endpoint with pagination and sorting capabilities."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for retrieving quote information - individual quotes, customer quotes, and system-wide admin queries"
+		},
+		{
+			"name": "🔄 Update Quotes",
+			"item": [
+				{
+					"name": "Activate Quote",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"admin_user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/quotes/{{quote_id}}/activate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"quotes",
+								"{{quote_id}}",
+								"activate"
+							]
+						},
+						"description": "Activate a quote as customer's main cart (deactivates others automatically)"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Quote",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"admin_user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/quotes/{{quote_id}}/deactivate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"quotes",
+								"{{quote_id}}",
+								"deactivate"
+							]
+						},
+						"description": "Manually deactivate a quote (will no longer be customer's active cart)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for updating quote states (activate/deactivate)"
+		},
+		{
+			"name": "🗑️ Delete Quotes",
+			"item": [
+				{
+					"name": "Delete Quote Extension Permanently",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/quotes/{{quote_id}}/delete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"quotes",
+								"{{quote_id}}",
+								"delete"
+							]
+						},
+						"description": "Permanently delete a quote extension with descriptive endpoint URL"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for deleting quotes"
+		},
+		{
+			"name": "🧪 Testing Scenarios",
+			"item": [
+				{
+					"name": "Test Customer Validation Error",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request\": {\n        \"customer_email\": \"nonexistent@test.com\",\n        \"items\": [\n            {\n                \"sku\": \"test-product\",\n                \"qty\": 1,\n                \"price\": 99.99\n            }\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/create-quote",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"create-quote"
+							]
+						},
+						"description": "Test error handling for non-existent customer"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Product Validation Error",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request\": {\n        \"customer_email\": \"{{customer_email}}\",\n        \"items\": [\n            {\n                \"sku\": \"non-existent-product\",\n                \"qty\": 1,\n                \"price\": 99.99\n            }\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/quotes-with-items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"create-quote"
+							]
+						},
+						"description": "Test error handling for non-existent product SKU"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Quote Not Found Error",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rest/V1/lreifs-multiquotes/quotes/999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"V1",
+								"lreifs-multiquotes",
+								"quotes",
+								"999"
+							]
+						},
+						"description": "Test error handling for non-existent quote ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Test requests for error scenarios and edge cases"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-refresh admin token if needed",
+					"const token = pm.collectionVariables.get('admin_token');",
+					"if (!token || token === '') {",
+					"    console.log('No admin token found, please run \"Get Admin Token\" first');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test for all requests",
+					"pm.test('Status code is successful', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+					"});",
+					"",
+					"// Log response for debugging",
+					"if (pm.response.code >= 400) {",
+					"    console.log('Error Response:', pm.response.text());",
+					"}"
+				]
+			}
+		}
+	]
+}

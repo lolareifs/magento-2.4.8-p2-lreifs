@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Lreifs Multiquotes Module v1.0.0 - REST API Configuration
+ * Defines 8 REST API endpoints for enterprise immutable quote management
+ * 
+ * Endpoints:
+ * - POST /V1/lreifs-multiquotes/create-quote: Create new immutable quote with items
+ * - POST /V1/lreifs-multiquotes/quotes/{quoteId}/convert: Convert existing quote to immutable
+ * - GET /V1/lreifs-multiquotes/quotes/{quoteId}: Get quote details
+ * - POST /V1/lreifs-multiquotes/quotes/{quoteId}/activate: Activate quote
+ * - POST /V1/lreifs-multiquotes/quotes/{quoteId}/deactivate: Deactivate quote
+ * - DELETE /V1/lreifs-multiquotes/quotes/{quoteId}/delete: Delete quote permanently
+ * - GET /V1/customers/{customerId}/lreifs-multiquotes: Get customer quotes
+ * - GET /V1/lreifs-multiquotes/all-quotes: Get all system quotes with advanced filtering (Admin only)
+ * 
+ * All endpoints include proper ACL authorization and audit logging.
+ * 
+ * Copyright © Lreifs All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    
+    <!-- Create NEW Immutable Quote with Items (creates new quote with incremental ID) -->
+    <route url="/V1/lreifs-multiquotes/create-quote" method="POST">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="createImmutableQuoteWithItems"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_create"/>
+        </resources>
+    </route>
+
+    <!-- Convert EXISTING Quote to Immutable -->
+    <route url="/V1/lreifs-multiquotes/quotes/:quoteId/convert" method="POST">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="convertQuoteToImmutable"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_create"/>
+        </resources>
+    </route>
+
+    <!-- Get Quote Extension by Quote ID -->
+    <route url="/V1/lreifs-multiquotes/quotes/:quoteId" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="getByQuoteId"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view"/>
+        </resources>
+    </route>
+
+    <!-- Activate Quote -->
+    <route url="/V1/lreifs-multiquotes/quotes/:quoteId/activate" method="POST">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="activateQuote"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_activate"/>
+        </resources>
+    </route>
+
+    <!-- Deactivate Quote -->
+    <route url="/V1/lreifs-multiquotes/quotes/:quoteId/deactivate" method="POST">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="deactivateQuote"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_activate"/>
+        </resources>
+    </route>
+
+    <!-- Delete Quote -->
+    <route url="/V1/lreifs-multiquotes/quotes/:quoteId/delete" method="DELETE">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="deleteQuote"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_delete"/>
+        </resources>
+    </route>
+
+    <!-- Get Customer Quotes -->
+    <route url="/V1/customers/:customerId/lreifs-multiquotes" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="getCustomerQuotes"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view"/>
+        </resources>
+    </route>
+
+    <!-- Convert Quote to Order -->
+    <route url="/V1/lreifs-multiquotes/quotes/:quoteId/convert-to-order" method="POST">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="convertToOrder"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view"/>
+        </resources>
+    </route>
+
+    <!-- Check if Quote Can Be Modified -->
+    <route url="/V1/lreifs-multiquotes/quotes/:quoteId/can-modify" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="canModifyQuote"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view"/>
+        </resources>
+    </route>
+
+    <!-- Repository Routes for Advanced Operations -->
+    
+    <!-- Get Quote Extension by ID -->
+    <route url="/V1/lreifs-multiquotes/extensions/:id" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" method="get"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view"/>
+        </resources>
+    </route>
+
+    <!-- Save Quote Extension -->
+    <route url="/V1/lreifs-multiquotes/extensions" method="POST">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_create"/>
+        </resources>
+    </route>
+
+    <!-- Update Quote Extension -->
+    <route url="/V1/lreifs-multiquotes/extensions/:id" method="PUT">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_create"/>
+        </resources>
+    </route>
+
+    <!-- Delete Quote Extension by ID -->
+    <route url="/V1/lreifs-multiquotes/extensions/:id" method="DELETE">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" method="deleteById"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_delete"/>
+        </resources>
+    </route>
+
+    <!-- Get List of Quote Extensions with Search Criteria -->
+    <route url="/V1/lreifs-multiquotes/extensions/search" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view_all"/>
+        </resources>
+    </route>
+
+    <!-- Get Immutable Quotes by Customer -->
+    <route url="/V1/customers/:customerId/lreifs-multiquotes/immutable" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" method="getImmutableQuotesByCustomer"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view"/>
+        </resources>
+    </route>
+
+    <!-- Admin-only Routes -->
+    
+    <!-- Get All Immutable Quotes (Admin only) -->
+    <route url="/V1/lreifs-multiquotes/all-quotes" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionManagementInterface" method="getAllImmutableQuotes"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view_all"/>
+        </resources>
+    </route>
+    
+    <!-- Get Expired Quotes (Admin only) -->
+    <route url="/V1/lreifs-multiquotes/admin/expired-quotes" method="GET">
+        <service class="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" method="getExpiredQuotes"/>
+        <resources>
+            <resource ref="Lreifs_Multiquotes::quote_extension_view_all"/>
+        </resources>
+    </route>
+
+</routes>
