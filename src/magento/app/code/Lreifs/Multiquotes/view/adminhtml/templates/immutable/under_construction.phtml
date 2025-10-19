@@ -1,21 +1,22 @@
+
 <div class="admin__page-section">
     <div class="admin__page-section-title">
-        <span class="title">Funcionalidad en desarrollo</span>
+        <span class="title">Feature under development</span>
     </div>
     <div class="admin__page-section-content">
         <div class="message message-notice notice">
             <div class="message-inner">
                 <div class="message-content">
-                    <strong>La creación de Immutable Quotes desde el panel de administración está en desarrollo.</strong><br><br>
+                    <strong>Creating Immutable Quotes from the admin panel is currently under development.</strong><br><br>
                     <ul>
-                        <li>Puedes crear un quote inmutable usando el <b>comando CLI</b>:
+                        <li>You can create an immutable quote using the <b>CLI command</b>:
                             <pre>bin/magento lreifs:multiquotes:create --customer-id=123 --expires-at="2025-12-31" --immutable --items='[{"sku":"SKU-001","qty":2,"price":100},{"sku":"SKU-002","qty":1,"price":50}]'</pre>
                         </li>
-                        <li>También puedes usar la <b>colección Postman</b> incluida en el repositorio:
+                        <li>You can also use the <b>Postman collection</b> included in the repository:
                             <pre>Lreifs_Multiquotes_API.postman_collection.json</pre>
-                            <b>Ejemplo endpoint:</b>
+                            <b>Example endpoint:</b>
                             <pre>POST /rest/V1/lreifs-multiquotes/quotes</pre>
-                            <b>Body ejemplo:</b>
+                            <b>Example body:</b>
                             <pre>{
     "customer_email": "{{customer_email}}",
         "name": "Multi-Item Quote",
@@ -46,7 +47,7 @@
 }</pre>
                     </ul>
                     <br>
-                    <a href="<?= $block->getUrl('multiquotes/api/documentation') ?>" target="_blank">Ver documentación API</a>
+                    <a href="<?= $block->getUrl('multiquotes/api/documentation') ?>" target="_blank">View API documentation</a>
                 </div>
             </div>
         </div>
