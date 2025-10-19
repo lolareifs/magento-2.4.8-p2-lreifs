@@ -1,0 +1,66 @@
+# Docker Magento Project .gitignore
+
+# ================================
+# MAGENTO CORE FILES
+# ================================
+
+# Environment and configuration files
+src/magento/app/etc/env.php
+src/magento/app/etc/config.php
+
+# Generated files and directories
+src/magento/generated/
+src/magento/pub/static/
+src/magento/pub/media/customer/
+src/magento/pub/media/downloadable/
+src/magento/pub/media/import/
+src/magento/pub/media/theme/
+src/magento/pub/media/catalog/product/cache/
+
+# Cache, logs and temporary files (entire var directory)
+src/magento/var/
+
+# Vendor dependencies
+src/magento/vendor/
+
+# Magento CLI executable (modified during installation)
+src/magento/bin/magento
+
+# Authentication files
+src/magento/auth.json
+
+# ================================
+# DEVELOPMENT FILES
+# ================================
+
+# Custom development scripts
+src/magento/create-test-products.php
+
+# ================================
+# IDE AND SYSTEM FILES
+# ================================
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node modules (frontend tools)
+node_modules/
+
+# PHPStorm
+.phpstorm.meta.php
+
+# SSL certificates
+*.pem
+*.crt
+*.key
