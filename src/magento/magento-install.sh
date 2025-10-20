@@ -19,6 +19,18 @@ echo "🗑️ Cleaning any existing installation files..."
 docker compose exec phpfpm rm -f app/etc/env.php || true
 docker compose exec phpfpm rm -f app/etc/config.php || true
 
+echo "🔑 Creando auth.json con credenciales de acceso a Magento Marketplace..."
+cat <<EOF > auth.json
+{
+  "http-basic": {
+    "repo.magento.com": {
+      "username": "8cbf8dcea67d8fc17424deae73c5c212",
+      "password": "8b61424ca6f008e765310a22b2b48483"
+    }
+  }
+}
+EOF
+
 echo "🧹 Cleaning cache and generated files..."
 docker compose exec phpfpm rm -rf var/cache/* || true
 docker compose exec phpfpm rm -rf var/page_cache/* || true
