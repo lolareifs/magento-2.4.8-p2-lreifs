@@ -40,7 +40,7 @@ docker compose exec phpfpm php bin/magento setup:install \
   --admin-lastname=User \
   --admin-email=lolareifscarmona@gmail.com \
   --admin-user=admin \
-  --admin-password=lola123 \
+  --admin-password=XXX \
   --language=es_ES \
   --currency=EUR \
   --timezone=Europe/Madrid \
@@ -92,7 +92,7 @@ echo "   Admin Panel: http://localhost${ADMIN_URL}"
 echo ""
 echo "🔑 Admin Credentials:"
 echo "   Username: admin"
-echo "   Password: lola123"
+echo "   Password: XXX"
 echo ""
 echo "�️ Test Products Created:"
 echo "   - lreifs-test-product-001 (€99.99)"
