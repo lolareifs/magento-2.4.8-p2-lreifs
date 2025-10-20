@@ -42,7 +42,7 @@ echo "🔧 Disabling Two-Factor Authentication modules..."
 docker compose exec phpfpm php bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth Magento_TwoFactorAuth || true
 
 echo "⚙️ Installing Magento..."
-docker compose exec phpfpm composer install
+composer install
 
 docker compose exec phpfpm php bin/magento setup:install \
   --base-url=http://local.magento/ \
