@@ -19,7 +19,7 @@ fi
 
 # 1.5️⃣ Ask about setup:upgrade
 read -p "Do you want to run setup:upgrade before compilation? (y/n): " SETUP_UPGRADE
-if [[ "$SETUP_UPGRADE" =~ ^[Yy]$ ]]; then
+if [ "$SETUP_UPGRADE" = "y" ] || [ "$SETUP_UPGRADE" = "Y" ]; then
     echo "⚙️ Running setup:upgrade..."
     $BIN_MAGE setup:upgrade
 fi
