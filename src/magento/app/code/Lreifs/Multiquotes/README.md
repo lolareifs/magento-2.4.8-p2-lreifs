@@ -1,271 +1,109 @@
 # 🚀 Lreifs Multiquotes Module v1.0.0
 
-## **Complete Immutable Quote Management for Magento 2.4.8-p2**
 
-### 📋 **Description**
+## 📋 Description
 
-Enterprise-grade module providing comprehensive immutable quote management with enhanced REST API, system-wide quote viewing, advanced filtering, and complete audit trails. Features enhanced CLI commands with optional parameters and comprehensive Postman Collection v1.0.0 for testing.
-
----
-
-## ✨ **Key Features**
-
-✅ **Enhanced REST API** - 9 core endpoints with advanced filtering  
-✅ **System-wide Quote Viewing** - Admin access to all quotes (immutable + normal)  
-✅ **Advanced Filtering** - 6 filter types: is_immutable, customer_id, is_active, store_id, date ranges  
-✅ **Immutable Quotes** - Once created, they cannot be modified  
-✅ **Multi-product Support** - Multiple items per quote with SKU validation  
-✅ **Complete Audit Trail** - Detailed logging of all operations with IP tracking  
-✅ **Enhanced CLI Commands** - 5 commands with optional parameters and improved display  
-✅ **Enterprise Architecture** - Repository pattern, Service layer, Dependency Injection  
-✅ **Advanced Security** - Validation guards, access control, and prevention logging  
-✅ **Optimized Database** - Schemas with indexes and referential integrity  
-✅ **Postman Collection v1.0.0** - Complete testing suite with 9 endpoints and English descriptions  
-✅ **Comprehensive Documentation** - Technical architecture and complete API documentation
+Enterprise-grade module providing comprehensive immutable quote management for Magento 2.4.8-p2. Includes REST API, CLI commands, audit trail, advanced filtering, and Postman collection for testing.
 
 ---
 
-## 🛠 **Installation**
+## ✨ Key Features
 
-### **1. Copy Files**
-```bash
-# The module is already located at:
-app/code/Lreifs/Multiquotes/
-```
-
-### **2. Enable Module**
-```bash
-bin/magento module:enable Lreifs_Multiquotes
-bin/magento setup:upgrade
-bin/magento setup:di:compile
-bin/magento cache:flush
-```
-
-### **3. Run Schema Updates**
-```bash
-bin/magento setup:db-schema:upgrade
-```
+✅ **Complete REST API**: 12 endpoints for quote management, conversion, activation, deactivation, deletion, advanced filtering, and customer/system queries.  
+✅ **Advanced CLI**: 5 commands to create, list, activate, deactivate, and delete quotes, with optional parameters and global admin support.  
+✅ **Advanced Admin Filtering**: 6 filter types (status, customer, is_active, is_immutable, store_id, date range) and efficient pagination.  
+✅ **Immutable Quote Management**: Quotes cannot be modified after creation, with expiration control and cart conversion.  
+✅ **Multi-product & SKU Validation**: Support for multiple products per quote and SKU validation.  
+✅ **Comprehensive Audit Trail**: Detailed logging of all operations, changes, user, IP, endpoint, and before/after data in both database and file logs.  
+✅ **Enterprise Architecture**: Repository pattern, service layer, dependency injection, interface segregation, and custom events.  
+✅ **Advanced Security**: JWT authentication, role and permission validation, SQL injection protection, rate limiting, and data validation.  
+✅ **Database Optimization**: Strategic indexes, referential integrity, lazy loading, and automatic pagination.  
+✅ **Testing & Documentation**: Postman Collection v1.0.0 with all endpoints, request/response examples, CLI tests, and error coverage.  
+✅ **Technical Documentation**: README, API_DOCUMENTATION.md, database schema, and architecture explained.  
+✅ **Support & Troubleshooting**: Real-time logs, useful commands, and troubleshooting guide.  
+✅ **Frontend in development**: All backend and API features are available; the user interface will be included in future releases.
 
 ---
 
-## 📡 **Complete API Endpoints**
+## 🛠 Installation Instructions
 
-### **🔐 Authentication**
-```bash
-# Admin Token (required for admin-only endpoints)
-POST /rest/V1/integration/admin/token
-{
-  "username": "admin",
-  "password": "admin123"
-}
-
-# Customer Token (for customer-specific operations)
-POST /rest/V1/integration/customer/token
-{
-  "username": "customer@example.com",
-  "password": "password123"
-}
-```
-
-### **📋 Core Quote Management**
-
-#### **1. Create Immutable Quote with Items**
-```bash
-POST /rest/V1/lreifs-multiquotes/create-quote
-Authorization: Bearer {admin_token}
-Content-Type: application/json
-
-{
-  "request": {
-    "customer_id": 1,
-    "quote_name": "Enterprise Quote 2024",
-    "description": "Bulk order for Q4 inventory",
-    "notes": "Requires expedited shipping",
-    "valid_until": "2024-12-31",
-    "items": [
-      {
-        "sku": "product-sku-1",
-        "qty": 10
-      },
-      {
-        "sku": "product-sku-2", 
-        "qty": 5
-      }
-    ]
-  }
-}
-```
-
-#### **2. Convert Existing Quote to Immutable**
-```bash
-POST /rest/V1/lreifs-multiquotes/quotes/{quoteId}/convert
-Authorization: Bearer {admin_token}
-Content-Type: application/json
-
-{
-  "request": {
-    "customer_id": 1,
-    "quote_name": "Converted Quote",
-    "description": "Converted from cart to immutable quote"
-  }
-}
-```
-
-#### **3. Get Quote Details**
-```bash
-GET /rest/V1/lreifs-multiquotes/quotes/{quoteId}
-Authorization: Bearer {token}
-```
-
-#### **4. Activate Quote**
-```bash
-POST /rest/V1/lreifs-multiquotes/quotes/{quoteId}/activate
-Authorization: Bearer {admin_token}
-```
-
-#### **5. Deactivate Quote**
-```bash
-POST /rest/V1/lreifs-multiquotes/quotes/{quoteId}/deactivate
-Authorization: Bearer {admin_token}
-```
-
-#### **6. Delete Quote Permanently**
-```bash
-DELETE /rest/V1/lreifs-multiquotes/quotes/{quoteId}/delete
-Authorization: Bearer {admin_token}
-```
-
-#### **7. Get Customer Quotes**
-```bash
-GET /rest/V1/customers/{customerId}/lreifs-multiquotes?immutableOnly=true
-Authorization: Bearer {token}
-```
-
-#### **8. Get All Quotes (Admin Only) - NEW ENHANCED ENDPOINT**
-```bash
-# Basic listing
-GET /rest/V1/lreifs-multiquotes/all-quotes
-Authorization: Bearer {admin_token}
-
-# With pagination
-GET /rest/V1/lreifs-multiquotes/all-quotes?pageSize=20&currentPage=1
-
-# Advanced filtering examples:
-# Filter by immutable quotes only
-GET /rest/V1/lreifs-multiquotes/all-quotes?filters[is_immutable]=1
-
-# Filter by customer
-GET /rest/V1/lreifs-multiquotes/all-quotes?filters[customer_id]=123
-
-# Filter by active status
-GET /rest/V1/lreifs-multiquotes/all-quotes?filters[is_active]=1
-
-# Filter by store
-GET /rest/V1/lreifs-multiquotes/all-quotes?filters[store_id]=1
-
-# Date range filtering
-GET /rest/V1/lreifs-multiquotes/all-quotes?filters[created_from]=2024-01-01&filters[created_to]=2024-12-31
-
-# Combined filters with pagination
-GET /rest/V1/lreifs-multiquotes/all-quotes?pageSize=10&currentPage=2&filters[is_immutable]=1&filters[is_active]=1&filters[customer_id]=123
-```
-
-### **🖥️ Enhanced CLI Commands**
-
-#### **1. List Customer Quotes (Enhanced)**
-```bash
-# List quotes for specific customer
-php bin/magento lreifs:multiquotes:list-customer-quotes 123
-
-# List ALL system quotes (admin view) - NEW FEATURE
-php bin/magento lreifs:multiquotes:list-customer-quotes
-
-# Features:
-# - Shows both immutable and normal Magento quotes
-# - Displays admin creator email instead of ID
-# - Shows is_active status column
-# - Optional customer_id parameter
-```
-
-#### **2. Create Immutable Quote**
-```bash
-php bin/magento lreifs:multiquotes:create-quote \
-  --customer-id=1 \
-  --quote-name="CLI Created Quote" \
-  --description="Created via command line" \
-  --sku="simple-product" \
-  --qty=2
-```
-
-#### **3. Activate Quote**
-```bash
-php bin/magento lreifs:multiquotes:activate-quote 123 --admin-user-id=1
-```
-
-#### **4. Deactivate Quote**
-```bash
-php bin/magento lreifs:multiquotes:deactivate-quote 123 --admin-user-id=1
-```
-
-#### **5. Delete Quote**
-```bash
-php bin/magento lreifs:multiquotes:delete-quote 123 --admin-user-id=1
-```
+1. Copy files to `app/code/Lreifs/Multiquotes/`
+2. Enable the module:
+   ```bash
+   bin/magento module:enable Lreifs_Multiquotes
+   bin/magento setup:upgrade
+   bin/magento setup:di:compile
+   bin/magento cache:flush
+   ```
+3. Run schema updates:
+   ```bash
+   bin/magento setup:db-schema:upgrade
+   ```
 
 ---
 
-## 🗄️ **Enhanced Database Structure**
+## 🔧 Configuration Steps
 
-### **Table: `lreifs_quote_extension`**
-- `extension_id` - Unique extension ID (Primary Key)
-- `quote_id` - Reference to Magento quote table (Indexed)
-- `customer_id` - Customer ID (Indexed for performance)
-- `quote_name` - User-friendly quote name
-- `description` - Detailed quote description
-- `notes` - Additional notes and comments
-- `is_immutable` - Immutability flag (0/1)
+  Added config.xml to autofigure module, but optional:
+- Configure system parameters in `etc/adminhtml/system.xml` (quote lifetime, audit, notifications, etc.)
+- Set up ACL permissions for admin users.
+- Adjust rate limiting and performance options as needed.
+- For advanced configuration, see the section [Advanced Configuration](#configuration).
+
+---
+
+## 💡 Usage Examples
+
+### API Usage & CLI Custom commands
+- See [API Endpoints](#api-endpoints) for request/response examples.
+
+
+## 🧪 Testing Instructions
+
+- Use the included Postman collection: `POSTMAN_COLLECTION_MLreifs_Multiquotes_API.postman_collection.json`
+- Test all endpoints with real data and authentication.
+- Validate CLI commands for quote management and audit.
+- Check logs in `var/log/lreifs_multiquotes.log` and `var/log/system.log`.
+- For automated tests, see [Comprehensive Testing Coverage](#testing).
+
+---
+
+## 🗄️ Database Structure
+
+### Table: `lreifs_quote_extension`
+- `entity_id` - Primary key
+- `quote_id` - Reference to Magento quote (indexed)
+- `customer_id` - Customer ID (indexed)
+- `quote_name` - Quote name
+- `description` - Quote description
+- `notes` - Additional notes
+- `is_immutable` - Immutable flag (0/1)
 - `is_active` - Active/inactive status (0/1)
-- `valid_until` - Quote expiration date
-- `immutable_created_by` - Admin user ID who made it immutable
+- `valid_until` - Expiration date
+- `immutable_created_by` - Admin user ID
 - `immutable_created_at` - Timestamp when made immutable
-- `created_at` / `updated_at` - Standard timestamps
+- `created_at` / `updated_at` - Timestamps
+- **Indexes:** On `quote_id`, `customer_id`, `is_immutable`, `is_active`, `valid_until`
+- **Foreign Keys:** To `quote`, `customer_entity`, `sales_order` (if applicable)
 
-### **Table: `lreifs_multiquotes_audit_log`**
-- `log_id` - Unique log ID (Primary Key)
-- `quote_extension_id` - Extension reference (Foreign Key)
-- `user_id` - User who executed the action
-- `user_type` - User type (admin/customer/guest)
+### Table: `lreifs_multiquotes_audit_log`
+- `log_id` - Primary key
+- `quote_extension_id` - Reference to quote extension
+- `user_id` - User who performed the action
+- `user_type` - Type (admin/customer/guest)
 - `action` - Action performed (create/activate/deactivate/delete)
 - `endpoint` - API endpoint used
 - `request_data` - JSON request data
 - `response_data` - JSON response data
-- `ip_address` - User IP address for security tracking
-- `user_agent` - Browser user agent
-- `created_at` - Event timestamp (Indexed for performance)
-- `quote_name` - Quote name
-- `description` - Detailed description
-- `notes` - Additional notes
-- `is_immutable` - Immutability flag
-- `is_active` - Active/inactive status
-- `valid_until` - Expiration date
-- `created_at` / `updated_at` - Timestamps
-
-### **Table: `lreifs_multiquotes_audit_log`**
-- `log_id` - Unique log ID
-- `quote_extension_id` - Extension reference
-- `user_id` - User who executed the action
-- `user_type` - User type (admin/customer)
-- `action` - Action performed
-- `endpoint` - API endpoint used
-- `request_data` - Request data
-- `response_data` - Response data
 - `ip_address` - User IP
 - `user_agent` - Browser user agent
-- `created_at` - Event timestamp
+- `created_at` - Timestamp
+
+**See [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) for full details.**
 
 ---
 
-## 🏗️ **Enhanced Module Architecture**
+## 🏗️ Module Architecture
 
 ```
 app/code/Lreifs/Multiquotes/
@@ -275,45 +113,51 @@ app/code/Lreifs/Multiquotes/
 │   │   ├── QuoteExtensionInterface.php
 │   │   ├── QuoteItemRequestInterface.php
 │   │   └── QuoteExtensionSearchResultsInterface.php
-│   ├── QuoteExtensionManagementInterface.php (Main Service Interface)
-│   └── QuoteExtensionRepositoryInterface.php (Repository Interface)
+│   ├── QuoteExtensionManagementInterface.php
+│   └── QuoteExtensionRepositoryInterface.php
+├── Console/
+│   └── Command/
+│       ├── CreateImmutableQuoteCommand.php
+│       ├── ActivateQuoteCommand.php
+│       ├── DeactivateQuoteCommand.php
+│       ├── ListCustomerQuotesCommand.php
+│       └── DeleteQuoteCommand.php
+├── Exception/
+│   └── ImmutableQuoteModificationException.php
+├── Helper/
+│   └── ContextHelper.php
 ├── Model/
 │   ├── Api/
-│   │   └── QuoteExtensionManagement.php (REST API Layer)
+│   │   └── QuoteExtensionManagement.php
 │   ├── Data/
 │   │   ├── CreateImmutableQuoteRequest.php
 │   │   ├── QuoteExtension.php
 │   │   ├── QuoteItemRequest.php
 │   │   └── QuoteExtensionSearchResults.php
-│   ├── QuoteExtensionRepository.php (Database Operations)
+│   ├── QuoteExtensionRepository.php
 │   └── ResourceModel/
-│       ├── QuoteExtension.php (Resource Model)
+│       ├── QuoteExtension.php
 │       └── QuoteExtension/
-│           └── Collection.php (Collection with Filters)
+│           └── Collection.php
 ├── Service/
-│   ├── QuoteExtensionManagement.php (Business Logic Layer)
-│   ├── Guard/
-│   │   └── ImmutableQuoteGuard.php (Security Layer)
 │   ├── Audit/
-│   │   └── AuditLogger.php (Comprehensive Logging)
-│   └── Helper/
-│       └── ContextHelper.php (Shared Utilities)
-├── Console/Command/ (Enhanced CLI Commands)
-│   ├── CreateImmutableQuoteCommand.php
-│   ├── ActivateQuoteCommand.php
-│   ├── DeactivateQuoteCommand.php
-│   ├── ListCustomerQuotesCommand.php (Enhanced with system-wide view)
-│   └── DeleteQuoteCommand.php
-├── Exception/
-│   └── ImmutableQuoteModificationException.php
+│   │   └── AuditLogger.php
+│   ├── Guard/
+│   │   └── ImmutableQuoteGuard.php
+│   └── QuoteExtensionManagement.php
 ├── etc/
-│   ├── module.xml (Module Declaration)
-│   ├── di.xml (Dependency Injection Configuration)
-│   ├── webapi.xml (REST API Routing)
-│   ├── db_schema.xml (Database Schema)
-│   ├── db_schema_whitelist.json (Schema Whitelist)
-│   └── acl.xml (Access Control List)
-└── registration.php
+│   ├── acl.xml
+│   ├── db_schema.xml
+│   ├── db_schema_whitelist.json
+│   ├── di.xml
+│   ├── module.xml
+│   └── webapi.xml
+├── registration.php
+├── composer.json
+├── README.md
+├── API_DOCUMENTATION.md
+├── DATABASE_SCHEMA.md
+└── POSTMAN_COLLECTION_MULTIQUOTES_v2.json
 ```
 
 ### **🔧 Key Architecture Features**
@@ -329,11 +173,11 @@ app/code/Lreifs/Multiquotes/
 
 ---
 
-## 📊 **Auditing and Logging**
+## 📊 Auditing and Logging
 
 ### **Available Logs**
-- **File:** `var/log/lreifs_multiquotes_api.log`
-- **Database:** Table `lreifs_multiquotes_audit_log`
+- **File:** `var/log/lreifs_multiquotes.log`
+- **Database:** Table `lreifs_quote_extension_audit_log`
 
 ### **Registered Information**
 - ✅ All API requests with timestamps
@@ -344,7 +188,7 @@ app/code/Lreifs/Multiquotes/
 
 ---
 
-## 🔒 **Security**
+## 🔒 Security
 
 ### **Implemented Validations**
 - ✅ Mandatory JWT authentication
@@ -360,94 +204,7 @@ app/code/Lreifs/Multiquotes/
 
 ---
 
-## 📱 **Testing with Postman v1.0.0**
-
-### **Enhanced Collection Included**
-```bash
-# Main project file:
-POSTMAN_COLLECTION_MULTIQUOTES_v2.json
-```
-
-### **v1.0.0 New Features**
-- ✅ **8 Complete Endpoints** - All current API endpoints covered
-- ✅ **English Descriptions** - All descriptions updated to English
-- ✅ **Advanced Filtering Examples** - Complete getAllQuotes filtering demos
-- ✅ **Enhanced Admin Endpoints** - New "Get All Quotes (Admin Only)" and "Delete Quote"
-- ✅ **Real Configuration** - Updated base_url and customer_email to working values
-- ✅ **Comprehensive Tests** - Request/response validation for all endpoints
-
-### **Testing Features**
-- ✅ **Complete API Coverage** - All 9 endpoints with examples
-- ✅ **Auto-Authentication** - Automatically generates JWT tokens
-- ✅ **Response Validation** - Verifies response structure and data types
-- ✅ **Advanced Filtering** - Demonstrates all 6 filter types
-- ✅ **Integration Scenarios** - Complete business workflow testing
-- ✅ **Dynamic Variables** - Automatic ID and token management
-
-### **Configured Environment Variables**
-- `base_url`: localhost (updated for Docker environment)
-- `admin_user`: admin
-- `admin_password`: lola123
-- `customer_email`: jane.doe@example.com (updated to real email)
-- `customer_password`: password123
-
-### **Complete Endpoint Collection v1.0.0**
-1. **Admin Authentication** - JWT token generation and validation
-2. **Customer Authentication** - Customer token verification
-3. **Create Immutable Quote with Items** - Complete quote creation with products
-4. **Convert Quote to Immutable** - Existing quote conversion
-5. **Get Quote by ID** - Individual quote retrieval
-6. **Activate Quote** - Quote activation with admin permissions
-7. **Deactivate Quote** - Quote deactivation
-8. **Get All Quotes (Admin Only)** - NEW: System-wide quote listing with advanced filters
-9. **Delete Quote** - NEW: Quote deletion with proper authorization
-10. **Get Customer Quotes** - Customer-specific quote listing
-
-### **Advanced Filtering Examples Included**
-- Basic pagination (`pageSize`, `currentPage`)
-- Immutable filter (`filters[is_immutable]=1`)
-- Customer filter (`filters[customer_id]=123`)
-- Active status filter (`filters[is_active]=1`)
-- Store filter (`filters[store_id]=1`)
-- Date range filters (`filters[created_from]`, `filters[created_to]`)
-- Combined filter examples
-- ✅ Result logging
-
----
-
-## 🚀 **Use Cases**
-
-### **1. B2B E-commerce**
-- Custom quotes for corporate clients
-- Special pricing with expiration dates
-- Internal approvals before conversion
-
-### **2. Marketplace**
-- Multi-vendor quotes
-- Immutable price comparison
-- Negotiation history
-
-### **3. CRM Integration**
-- External system synchronization
-- REST API for mobile applications
-- Sales process automation
-
----
-
-## 🔧 **Advanced Configuration**
-
-### **System Parameters**
-```php
-// In etc/adminhtml/system.xml (optional)
-- Default quote lifetime
-- Quote limit per customer
-- Audit configuration
-- Automatic notifications
-```
-
----
-
-## 📈 **Performance**
+## 📈 Performance
 
 ### **Included Optimizations**
 - ✅ Optimized database indexes
@@ -458,147 +215,79 @@ POSTMAN_COLLECTION_MULTIQUOTES_v2.json
 
 ---
 
-## 🆘 **Support and Troubleshooting**
+## 🆘 Support and Troubleshooting
 
 ### **Debug Logs**
 ```bash
 # View logs in real time
-tail -f var/log/lreifs_multiquotes_api.log
+tail -f var/log/lreifs_multiquotes.log
 
 # Magento system logs  
 tail -f var/log/system.log
 tail -f var/log/exception.log
 ```
 
-### **Useful Commands**
-```bash
-# Regenerate code
-bin/magento setup:di:compile
-
-# Clean cache
-bin/magento cache:clean
-
-# Check module
-bin/magento module:status Lreifs_Multiquotes
-
-# Reindex
-bin/magento indexer:reindex
-```
-
----
-
-## 📞 **Contact**
-
-**Developer:** Lola Reifs  
-**Email:** lolareifscarmona@gmail.com  
-**Version:** 2.0 (October 2025)  
-**Compatibility:** Magento 2.4.8+  
-
----
-
-## 📄 **License**
+## 📄 License
 
 Module developed for internal use. All rights reserved.
 
 ---
 
-**Your immutable quote system is ready for production! 🎉**
-
-### `lreifs_quote_extension` (Main Table)
-- **27 columns** with enterprise features
-- **Primary Key**: `entity_id` 
-- **Foreign Keys**: Links to `quote`, `customer_entity`, `sales_order`
-- **Unique Constraints**: `immutable_hash`, `quote_id + extension_type`
-- **Optimized Indexes**: 7 strategic indexes for performance
-
-### `lreifs_quote_extension_audit` (Audit Table)  
-- **11 columns** for compliance tracking
-- **Full Change Logging**: Before/after values, user context, IP tracking
-- **Comprehensive Audit**: Action types, timestamps, user agent information
-
-For detailed schema documentation, see [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)
-
-## 🚀 Installation
-
-1. Copy module to `app/code/Lreifs/Multiquotes/`
-2. Run setup commands:
-   ```bash
-   php bin/magento setup:upgrade
-   php bin/magento setup:di:compile
-   php bin/magento cache:clean
-   ```
-
-## 📡 **Complete API Endpoints**
-
-### **🔐 Authentication (2 endpoints)**
-- `POST /rest/V1/integration/admin/token` - Get admin token
-- `POST /rest/V1/integration/customer/token` - Get customer token
-
-### **📋 Main Quote Management (7 endpoints)**
-- `POST /rest/V1/lreifs-multiquotes/quotes` - Create quote with products
-- `POST /rest/V1/lreifs-multiquotes/quotes/{quoteId}/convert` - Convert cart to quote
-- `GET /rest/V1/lreifs-multiquotes/quotes/{id}` - Get specific quote details
-- `GET /rest/V1/lreifs-multiquotes/quotes` - List all quotes (with pagination)
-- `POST /rest/V1/lreifs-multiquotes/quotes/{id}/status` - Update quote status
-- `DELETE /rest/V1/lreifs-multiquotes/quotes/{id}/delete` - Delete quote permanently
-- `GET /rest/V1/customers/{customerId}/lreifs-multiquotes` - Get customer quotes
-- `GET /rest/V1/lreifs-multiquotes/all-quotes` - Get all system quotes with advanced filtering (Admin only)
-
-### **⚡ Status and Control Endpoints**
-- `POST /rest/V1/lreifs-multiquotes/quotes/{id}/activate` - Activate quote
-- `POST /rest/V1/lreifs-multiquotes/quotes/{id}/deactivate` - Deactivate quote
-
-### **🔍 Advanced Query Endpoints**
-- `GET /rest/V1/customers/{customerId}/lreifs-multiquotes?immutableOnly=true` - Immutable quotes only
-- `GET /rest/V1/lreifs-multiquotes/quotes?status=active` - Filter by status
-
-### **📊 Total: 9 Main Endpoints + Filters and Options**
-
-### **🛠 Available Console Commands**
-```bash
-# Manage quote extensions
-php bin/magento lreifs:multiquotes:create-immutable
-php bin/magento lreifs:multiquotes:list-customer-quotes
-php bin/magento lreifs:multiquotes:activate
-php bin/magento lreifs:multiquotes:deactivate
-php bin/magento lreifs:multiquotes:delete
-```
+**Your immutable quote system is under development**
 
 ## 🏗️ Architecture
 
-### Service Layer
-- **QuoteExtensionManagement**: Core business logic (435+ lines)
-- **QuoteGuard**: Validation and protection services
-- **AuditLogger**: Comprehensive change tracking
 
-### Repository Pattern
-- **QuoteExtensionRepository**: Data access layer
-- **Dual Implementations**: Simple (cache-based) and Complex (database-driven)
+### Layered Architecture Overview
 
-### Event System
+The module is designed with a robust, backend-only, enterprise architecture, following Magento 2 best practices:
+
+- **API Layer**: Exposes REST endpoints for all quote operations, status changes, filtering, and audit queries.
+- **Service Layer**: Contains business logic for immutable quote management, validation, and lifecycle control (`QuoteExtensionManagement`, `ImmutableQuoteGuard`, `AuditLogger`).
+- **Repository Layer**: Abstracts data access and persistence (`QuoteExtensionRepository`), supporting efficient queries and system-wide operations.
+- **Resource Model Layer**: Handles direct database interactions and optimized collections.
+- **Event System**: Custom events for quote lifecycle (`lreifs_immutable_quote_created`, `lreifs_quote_converted_to_order`, etc.) enable extensibility and audit.
+- **Console Commands**: CLI tools for admins to manage quotes, activate/deactivate, and audit from the command line.
+- **Audit & Logging**: All operations are logged to both database and file, with before/after data, user context, and compliance tracking.
+- **Security**: Implements ACL, JWT authentication, input validation, rate limiting, and SQL injection protection.
+
+#### Key Architectural Principles
+- Immutability: Quotes cannot be modified after creation; all changes are tracked.
+- Separation of Concerns: Each layer (API, Service, Repository, Resource) is isolated for maintainability and testability.
+- Dependency Injection: All dependencies are managed via `di.xml` for flexibility and extensibility.
+- Interface Segregation: Clear contracts for data, service, and repository interfaces.
+- Audit Trail: Full compliance logging for every operation, with user/IP/context.
+- Performance: Strategic indexing, lazy loading, and pagination for large datasets.
+
+#### Backend-Only Focus
+No frontend code is present; all features are available via API, CLI, and admin grid. The frontend interface is planned for future releases.
+
+#### Example Events
 - `lreifs_immutable_quote_created`
-- `lreifs_immutable_quote_created_with_items`
 - `lreifs_immutable_quote_activated`
 - `lreifs_immutable_quote_deactivated`
 - `lreifs_quote_converted_to_order`
 - `lreifs_immutable_quote_deleted`
 - `lreifs_quote_modification_blocked`
 
-## 🔒 Security Features
+#### Example CLI Commands
+- `php bin/magento lreifs:multiquotes:create-immutable`
+- `php bin/magento lreifs:multiquotes:list-customer-quotes`
+- `php bin/magento lreifs:multiquotes:activate`
+- `php bin/magento lreifs:multiquotes:deactivate`
+- `php bin/magento lreifs:multiquotes:delete`
 
-- **ACL Integration**: Role-based permissions
-- **Input Validation**: Comprehensive data validation
-- **Audit Logging**: Full compliance tracking
-- **Rate Limiting**: API protection
-- **SQL Injection Protection**: Parameterized queries
+#### Security Features
+- ACL integration for role-based permissions
+- Comprehensive input validation
+- Full audit logging for compliance
+- Rate limiting and SQL injection protection
 
-## 🎯 Use Cases
-
-1. **B2B Quote Management**: Lock quotes during approval processes
-2. **Compliance Requirements**: Full audit trail for regulatory compliance
-3. **Version Control**: Track quote changes with complete history
-4. **Expiration Management**: Automatic quote lifecycle management
----
+#### Typical Use Cases
+- B2B quote management with locked pricing
+- Regulatory compliance with full audit trail
+- Version control for quote changes
+- Automatic expiration and lifecycle management
 
 ## 🚀 **Use Cases and Business Scenarios**
 
@@ -708,3 +397,11 @@ All endpoints documented with:
 ---
 
 🚀 **Production-ready with comprehensive testing and complete English documentation!**
+
+---
+
+## 🚧 Frontend Development Status
+
+La parte de frontend del módulo Lreifs Multiquotes está actualmente en desarrollo. Todas las funcionalidades de gestión y API están disponibles y probadas en backend y CLI, pero la interfaz de usuario para el área de cliente y administración se irá incorporando en futuras versiones.
+
+Para actualizaciones sobre el frontend, consulta el repositorio o contacta con el desarrollador.

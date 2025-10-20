@@ -200,12 +200,14 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
      */
     public function getByQuoteId(int $quoteId): QuoteExtensionInterface
     {
-        // Log API access
+        $extension = $this->service->getByQuoteId($quoteId);
+        $extensionId = $extension ? $extension->getEntityId() : null;
         $this->auditLogger->logApiAccess(
             "/V1/lreifs-multiquotes/quotes/{$quoteId}",
             'GET',
             array_merge($this->contextHelper->getAuditContext(), [
-                'quote_id' => $quoteId
+                'quote_id' => $quoteId,
+                'quote_extension_id' => $extensionId
             ])
         );
 
@@ -220,15 +222,17 @@ class QuoteExtensionManagement implements QuoteExtensionManagementInterface
     {
         $currentAdminUserId = $adminUserId ?? $this->contextHelper->getCurrentAdminUserId();
 
-        // Log API access
+        $extension = $this->service->getByQuoteId($quoteId);
+        $extensionId = $extension ? $extension->getEntityId() : null;
         $this->auditLogger->logApiAccess(
             "/V1/lreifs-multiquotes/quotes/{$quoteId}",
             'DELETE',
             array_merge($this->contextHelper->getAuditContext(), [
                 'quote_id' => $quoteId,
+                'quote_extension_id' => $extensionId,
                 'admin_user_id' => $currentAdminUserId
             ])
-        );        // Delegate to service layer
+        );
         return $this->service->deleteQuote($quoteId, $currentAdminUserId);
     }
 

@@ -54,18 +54,31 @@ class QuoteExtensionRepository implements QuoteExtensionRepositoryInterface
     /**
      * Constructor
      */
+    /** @var \Magento\Framework\Event\ManagerInterface */
+    private $eventManager;
+    /** @var \Psr\Log\LoggerInterface */
+    private $logger;
+    /** @var \Magento\Framework\App\CacheInterface */
+    private $cache;
+
     public function __construct(
         QuoteExtensionResource $resource,
         QuoteExtensionFactory $quoteExtensionFactory,
         CollectionFactory $collectionFactory,
         SearchResultsInterfaceFactory $searchResultsFactory,
-        CollectionProcessorInterface $collectionProcessor
+        CollectionProcessorInterface $collectionProcessor,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\App\CacheInterface $cache
     ) {
         $this->resource = $resource;
         $this->quoteExtensionFactory = $quoteExtensionFactory;
         $this->collectionFactory = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
         $this->collectionProcessor = $collectionProcessor;
+        $this->eventManager = $eventManager;
+        $this->logger = $logger;
+        $this->cache = $cache;
     }
 
     /**
@@ -75,8 +88,21 @@ class QuoteExtensionRepository implements QuoteExtensionRepositoryInterface
     {
         try {
             $this->resource->save($quoteExtension);
+            $this->eventManager->dispatch('multiquotes_quoteextension_save_after', ['quote_extension' => $quoteExtension]);
+            $this->logger->info('QuoteExtension saved', [
+                'entity_id' => $quoteExtension->getEntityId(),
+                'quote_id' => $quoteExtension->getQuoteId(),
+                'user' => $this->getCurrentUser(),
+                'ip' => $this->getClientIp(),
+                'timestamp' => date('c'),
+            ]);
+            // ...existing code...
         } catch (\Exception $exception) {
-            throw new CouldNotSaveException(__($exception->getMessage()));
+            $this->logger->error('Error saving QuoteExtension', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+            throw new CouldNotSaveException(__('Could not save quote extension: %1', $exception->getMessage()), $exception);
         }
         return $quoteExtension;
     }
@@ -132,10 +158,47 @@ class QuoteExtensionRepository implements QuoteExtensionRepositoryInterface
     {
         try {
             $this->resource->delete($quoteExtension);
+            $this->eventManager->dispatch('multiquotes_quoteextension_delete_after', ['quote_extension' => $quoteExtension]);
+            $this->logger->info('QuoteExtension deleted', [
+                'entity_id' => $quoteExtension->getEntityId(),
+                'quote_id' => $quoteExtension->getQuoteId(),
+                'user' => $this->getCurrentUser(),
+                'ip' => $this->getClientIp(),
+                'timestamp' => date('c'),
+            ]);
+            // Invalidate cache
+            $this->cache->remove($this->getCacheKey($quoteExtension->getEntityId()));
         } catch (\Exception $exception) {
-            throw new CouldNotDeleteException(__($exception->getMessage()));
+            $this->logger->error('Error deleting QuoteExtension', [
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+            throw new CouldNotDeleteException(__('Could not delete quote extension: %1', $exception->getMessage()), $exception);
         }
         return true;
+    }
+    /**
+     * Get cache key for QuoteExtension entity
+     */
+    private function getCacheKey($id): string
+    {
+        return 'multiquotes_quoteextension_' . $id;
+    }
+    /**
+     * Get current user (admin/customer context)
+     */
+    private function getCurrentUser(): string
+    {
+        // Implement user context detection (admin/customer/session)
+        return 'system';
+    }
+
+    /**
+     * Get client IP address
+     */
+    private function getClientIp(): string
+    {
+        return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     }
 
     /**

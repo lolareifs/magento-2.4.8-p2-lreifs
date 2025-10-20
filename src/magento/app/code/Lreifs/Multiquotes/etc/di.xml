@@ -2,20 +2,12 @@
 <!--
 /**
  * Lreifs Multiquotes Module v1.0.0 - Dependency Injection Configuration
- * Configures enterprise-grade immutable quote management dependencies
- * 
- * Key Configurations:
- * - Service layer implementations and interfaces
- * - Repository pattern implementations
- * - Data model preferences
- * - Custom logger configurations
- * - Console command registrations
- * 
- * Follows Magento 2 best practices for dependency injection and
- * enterprise architecture patterns.
- * 
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ *
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -26,8 +18,10 @@
                 type="Lreifs\Multiquotes\Model\Api\QuoteExtensionManagement"/>
     
         <!-- Repository Implementation -->
+
     <preference for="Lreifs\Multiquotes\Api\QuoteExtensionRepositoryInterface" 
                 type="Lreifs\Multiquotes\Model\QuoteExtensionRepository" />
+
     
     <preference for="Lreifs\Multiquotes\Api\Data\QuoteExtensionInterface"
                 type="Lreifs\Multiquotes\Model\QuoteExtension"/>
@@ -86,6 +80,8 @@
     <type name="Lreifs\Multiquotes\Service\Audit\AuditLogger">
         <arguments>
             <argument name="logger" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagementLogger</argument>
+            <argument name="securityLogger" xsi:type="object">Lreifs\Multiquotes\Service\QuoteExtensionManagementLogger</argument>
+            <argument name="auditRepository" xsi:type="object">Lreifs\Multiquotes\Model\QuoteExtensionAuditRepository</argument>
         </arguments>
     </type>
 

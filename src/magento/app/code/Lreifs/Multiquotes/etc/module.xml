@@ -3,16 +3,12 @@
 /**
  * Lreifs Multiquotes Module v1.0.0
  * Enterprise-grade immutable quote management for Magento 2.4.8+
- * 
- * Features:
- * - Enhanced REST API with 9 endpoints
- * - System-wide quote viewing with advanced filtering
- * - Comprehensive audit trails
- * - Enhanced CLI commands with optional parameters
- * - Complete English documentation
- * 
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ *
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 

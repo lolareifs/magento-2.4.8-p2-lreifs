@@ -1,7 +1,12 @@
 <?php
 /**
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ * Lreifs Multiquotes Repository Interface
+ *
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 declare(strict_types=1);
 

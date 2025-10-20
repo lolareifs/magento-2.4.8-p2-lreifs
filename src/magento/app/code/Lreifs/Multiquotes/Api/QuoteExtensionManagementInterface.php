@@ -1,20 +1,12 @@
 <?php
 /**
  * Lreifs Multiquotes Module v1.0.0 - Main Service Interface
- * 
- * Enterprise-grade immutable quote management interface providing comprehensive
- * business operations for creating, managing, and monitoring immutable quotes
- * with complete audit trails and advanced filtering capabilities.
- * 
- * Key Features:
- * - Create immutable quotes with multiple products
- * - Convert existing quotes to immutable state
- * - System-wide quote viewing with advanced filtering
- * - Complete lifecycle management (activate/deactivate/delete)
- * - Comprehensive audit trails and security logging
- * 
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ *
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 declare(strict_types=1);
 

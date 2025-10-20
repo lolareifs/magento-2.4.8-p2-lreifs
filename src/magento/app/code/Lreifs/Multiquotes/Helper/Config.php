@@ -18,113 +18,42 @@ namespace Lreifs\Multiquotes\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
-use Magento\Framework\App\Cache\TypeListInterface;
-use Magento\Framework\App\Cache\Frontend\Pool;
 use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 
 class Config extends AbstractHelper
 {
-    /**
-     * Configuration paths
-     */
+    // Configuration paths matching system.xml/config.xml
     public const XML_PATH_ENABLED = 'multiquotes/general/enabled';
-    public const XML_PATH_DEBUG_MODE = 'multiquotes/general/debug_mode';
-    public const XML_PATH_CACHE_ENABLED = 'multiquotes/general/cache_enabled';
-    
-    // Rate Limiting
     public const XML_PATH_RATE_LIMITING_ENABLED = 'multiquotes/rate_limiting/enabled';
     public const XML_PATH_REQUESTS_PER_HOUR = 'multiquotes/rate_limiting/requests_per_hour';
-    public const XML_PATH_REQUESTS_PER_MINUTE = 'multiquotes/rate_limiting/requests_per_minute';
-    public const XML_PATH_BURST_LIMIT = 'multiquotes/rate_limiting/burst_limit';
-    public const XML_PATH_BLOCK_DURATION = 'multiquotes/rate_limiting/block_duration';
-    public const XML_PATH_WHITELIST_IPS = 'multiquotes/rate_limiting/whitelist_ips';
-    
-    // Quote Settings - Removed non-implemented configurations
-    
-    // Performance Settings - Removed non-implemented configurations
-    
-    // Advanced Settings - Removed non-implemented configurations
-    
-    /**
-     * Cache configuration
-     */
-    private const CACHE_TAG = 'MULTIQUOTES_CONFIG';
-    private const CACHE_LIFETIME = 3600; // 1 hour
-    
-    /**
-     * @var TypeListInterface
-     */
-    private $cacheTypeList;
-    
-    /**
-     * @var Pool
-     */
-    private $cacheFrontendPool;
-    
+    public const XML_PATH_CRON_ENABLED = 'lreifs_multiquotes/expiration/cron_enabled';
+    public const XML_PATH_BATCH_SIZE = 'lreifs_multiquotes/expiration/batch_size';
+    public const XML_PATH_MAX_EXECUTION_TIME = 'lreifs_multiquotes/expiration/max_execution_time';
+
     /**
      * @var LoggerInterface
      */
     private $logger;
-    
-    /**
-     * @var array
-     */
-    private $configCache = [];
 
-    /**
-     * Constructor
-     */
     public function __construct(
         Context $context,
-        TypeListInterface $cacheTypeList,
-        Pool $cacheFrontendPool,
         LoggerInterface $logger
     ) {
         parent::__construct($context);
-        $this->cacheTypeList = $cacheTypeList;
-        $this->cacheFrontendPool = $cacheFrontendPool;
         $this->logger = $logger;
     }
 
     /**
-     * Get configuration value with caching
+     * Get configuration value (minimal, no cache)
      */
-    private function getConfigValue(string $path, ?string $scope = null, ?int $scopeId = null): ?string
+    private function getConfigValue(string $path, ?int $storeId = null): ?string
     {
-        $cacheKey = sprintf('%s_%s_%s_%s', self::CACHE_TAG, $path, $scope ?: 'default', $scopeId ?: 0);
-        
-        // Check in-memory cache first
-        if (isset($this->configCache[$cacheKey])) {
-            return $this->configCache[$cacheKey];
-        }
-        
-        // Check Magento cache if enabled
-        if ($this->isCacheEnabled()) {
-            $cache = $this->cacheFrontendPool->get('config');
-            $cachedValue = $cache->load($cacheKey);
-            if ($cachedValue !== false) {
-                $this->configCache[$cacheKey] = $cachedValue;
-                return $cachedValue;
-            }
-        }
-        
-        // Get from configuration
-        $value = $this->scopeConfig->getValue(
+        return $this->scopeConfig->getValue(
             $path,
-            $scope ?: ScopeInterface::SCOPE_STORE,
-            $scopeId
+            ScopeInterface::SCOPE_STORE,
+            $storeId
         );
-        
-        // Store in cache
-        $this->configCache[$cacheKey] = $value;
-        
-        if ($this->isCacheEnabled()) {
-            $cache = $this->cacheFrontendPool->get('config');
-            $cache->save($value, $cacheKey, [self::CACHE_TAG], self::CACHE_LIFETIME);
-        }
-        
-        return $value;
     }
 
     /**
@@ -139,32 +68,6 @@ class Config extends AbstractHelper
         );
     }
 
-    /**
-     * Check if debug mode is enabled
-     */
-    public function isDebugMode(?int $storeId = null): bool
-    {
-        return $this->scopeConfig->isSetFlag(
-            self::XML_PATH_DEBUG_MODE,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-    /**
-     * Check if caching is enabled
-     */
-    public function isCacheEnabled(?int $storeId = null): bool
-    {
-        return $this->scopeConfig->isSetFlag(
-            self::XML_PATH_CACHE_ENABLED,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-    // Rate Limiting Configuration Methods
-    
     /**
      * Check if rate limiting is enabled
      */
@@ -182,125 +85,34 @@ class Config extends AbstractHelper
      */
     public function getRequestsPerHour(?int $storeId = null): int
     {
-        return (int) $this->getConfigValue(self::XML_PATH_REQUESTS_PER_HOUR, ScopeInterface::SCOPE_STORE, $storeId) ?: 100;
+        return (int) $this->getConfigValue(self::XML_PATH_REQUESTS_PER_HOUR, $storeId) ?: 100;
     }
 
     /**
-     * Get requests per minute limit
+     * Check if cron is enabled for quote expiration
      */
-    public function getRequestsPerMinute(?int $storeId = null): int
+    public function isCronEnabled(?int $storeId = null): bool
     {
-        return (int) $this->getConfigValue(self::XML_PATH_REQUESTS_PER_MINUTE, ScopeInterface::SCOPE_STORE, $storeId) ?: 10;
+        return $this->scopeConfig->isSetFlag(
+            self::XML_PATH_CRON_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 
     /**
-     * Get burst limit
-     */
-    public function getBurstLimit(?int $storeId = null): int
-    {
-        return (int) $this->getConfigValue(self::XML_PATH_BURST_LIMIT, ScopeInterface::SCOPE_STORE, $storeId) ?: 5;
-    }
-
-    /**
-     * Get block duration in minutes
-     */
-    public function getBlockDuration(?int $storeId = null): int
-    {
-        return (int) $this->getConfigValue(self::XML_PATH_BLOCK_DURATION, ScopeInterface::SCOPE_STORE, $storeId) ?: 60;
-    }
-
-    /**
-     * Get whitelisted IP addresses
-     */
-    public function getWhitelistIps(?int $storeId = null): array
-    {
-        $ips = $this->getConfigValue(self::XML_PATH_WHITELIST_IPS, ScopeInterface::SCOPE_STORE, $storeId);
-        return $ips ? array_filter(array_map('trim', explode("\n", $ips))) : [];
-    }
-
-    // Quote Configuration Methods
-    
-    // Removed non-implemented configuration methods
-
-    // Performance Configuration Methods
-    
-    /**
-     * Get cache lifetime
-     */
-    public function getCacheLifetime(?int $storeId = null): int
-    {
-        return (int) $this->getConfigValue(self::XML_PATH_CACHE_LIFETIME, ScopeInterface::SCOPE_STORE, $storeId) ?: 3600;
-    }
-
-    /**
-     * Get batch size
+     * Get batch size for quote expiration
      */
     public function getBatchSize(?int $storeId = null): int
     {
-        return (int) $this->getConfigValue(self::XML_PATH_BATCH_SIZE, ScopeInterface::SCOPE_STORE, $storeId) ?: 50;
+        return (int) $this->getConfigValue(self::XML_PATH_BATCH_SIZE, $storeId) ?: 100;
     }
 
     /**
-     * Check if async processing is enabled
+     * Get max execution time for quote expiration
      */
-    public function isAsyncProcessingEnabled(?int $storeId = null): bool
+    public function getMaxExecutionTime(?int $storeId = null): int
     {
-        return $this->scopeConfig->isSetFlag(
-            self::XML_PATH_ENABLE_ASYNC_PROCESSING,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-    /**
-     * Check if cleanup of expired quotes is enabled
-     */
-    public function isCleanupExpiredQuotes(?int $storeId = null): bool
-    {
-        return $this->scopeConfig->isSetFlag(
-            self::XML_PATH_CLEANUP_EXPIRED_QUOTES,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-    /**
-     * Get cleanup days
-     */
-    public function getCleanupDays(?int $storeId = null): int
-    {
-        return (int) $this->getConfigValue(self::XML_PATH_CLEANUP_DAYS, ScopeInterface::SCOPE_STORE, $storeId) ?: 30;
-    }
-
-    // Removed non-implemented advanced configuration methods
-
-    /**
-     * Clear configuration cache
-     */
-    public function clearCache(): void
-    {
-        $this->configCache = [];
-        
-        if ($this->isCacheEnabled()) {
-            $cache = $this->cacheFrontendPool->get('config');
-            $cache->clean(\Zend_Cache::CLEANING_MODE_MATCHING_TAG, [self::CACHE_TAG]);
-        }
-        
-        $this->cacheTypeList->cleanType('config');
-    }
-
-    /**
-     * Get all rate limiting configuration
-     */
-    public function getRateLimitingConfig(?int $storeId = null): array
-    {
-        return [
-            'enabled' => $this->isRateLimitingEnabled($storeId),
-            'requests_per_hour' => $this->getRequestsPerHour($storeId),
-            'requests_per_minute' => $this->getRequestsPerMinute($storeId),
-            'burst_limit' => $this->getBurstLimit($storeId),
-            'block_duration' => $this->getBlockDuration($storeId),
-            'whitelist_ips' => $this->getWhitelistIps($storeId)
-        ];
+        return (int) $this->getConfigValue(self::XML_PATH_MAX_EXECUTION_TIME, $storeId) ?: 300;
     }
 }

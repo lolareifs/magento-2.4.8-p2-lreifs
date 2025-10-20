@@ -1,23 +1,14 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Lreifs Multiquotes Module v1.0.0 - REST API Configuration
- * Defines 8 REST API endpoints for enterprise immutable quote management
- * 
- * Endpoints:
- * - POST /V1/lreifs-multiquotes/create-quote: Create new immutable quote with items
- * - POST /V1/lreifs-multiquotes/quotes/{quoteId}/convert: Convert existing quote to immutable
- * - GET /V1/lreifs-multiquotes/quotes/{quoteId}: Get quote details
- * - POST /V1/lreifs-multiquotes/quotes/{quoteId}/activate: Activate quote
- * - POST /V1/lreifs-multiquotes/quotes/{quoteId}/deactivate: Deactivate quote
- * - DELETE /V1/lreifs-multiquotes/quotes/{quoteId}/delete: Delete quote permanently
- * - GET /V1/customers/{customerId}/lreifs-multiquotes: Get customer quotes
- * - GET /V1/lreifs-multiquotes/all-quotes: Get all system quotes with advanced filtering (Admin only)
- * 
- * All endpoints include proper ACL authorization and audit logging.
- * 
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ * Lreifs Multiquotes Module v1.0.0
+ * Enterprise-grade immutable quote management for Magento 2.4.8+
+ *
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

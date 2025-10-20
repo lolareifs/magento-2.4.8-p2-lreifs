@@ -2,12 +2,12 @@
 <!--
 /**
  * Lreifs Multiquotes Module v1.0.0 - Events Configuration
- * 
- * Configures event observers for real-time quote expiration checking
- * and other quote lifecycle events.
- * 
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ *
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

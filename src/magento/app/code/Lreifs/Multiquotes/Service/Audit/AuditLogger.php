@@ -18,7 +18,8 @@ class AuditLogger
 {
     public function __construct(
         private readonly LoggerInterface $logger,
-        private readonly LoggerInterface $securityLogger
+        private readonly LoggerInterface $securityLogger,
+        private readonly \Lreifs\Multiquotes\Model\QuoteExtensionAuditRepository $auditRepository
     ) {}
 
     /**
@@ -44,6 +45,19 @@ class AuditLogger
             'timestamp' => date('c'),
             'compliance_tags' => ['audit_trail', 'quote_lifecycle']
         ]);
+        $quoteExtensionId = $extension->getEntityId();
+        $this->auditRepository->save([
+            'quote_extension_id' => (isset($quoteExtensionId) && is_numeric($quoteExtensionId)) ? $quoteExtensionId : null,
+            'action' => 'quote_created',
+            'user_id' => $context['admin_user_id'] ?? $context['customer_id'] ?? null,
+            'user_type' => isset($context['admin_user_id']) ? 'admin' : 'customer',
+            'old_values' => null,
+            'new_values' => json_encode($extension->getData()),
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 
     /**
@@ -64,6 +78,19 @@ class AuditLogger
             'timestamp' => date('c'),
             'compliance_tags' => ['audit_trail', 'quote_activation']
         ]);
+        $quoteExtensionId = $extension->getEntityId();
+        $this->auditRepository->save([
+            'quote_extension_id' => isset($quoteExtensionId) && is_numeric($quoteExtensionId) ? $quoteExtensionId : null,
+            'action' => 'quote_activated',
+            'user_id' => $context['admin_user_id'] ?? null,
+            'user_type' => 'admin',
+            'old_values' => null,
+            'new_values' => json_encode($extension->getData()),
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 
     /**
@@ -83,6 +110,19 @@ class AuditLogger
             'deactivated_at' => $context['deactivated_at'],
             'timestamp' => date('c'),
             'compliance_tags' => ['audit_trail', 'quote_deactivation']
+        ]);
+        $quoteExtensionId = $extension->getEntityId();
+        $this->auditRepository->save([
+            'quote_extension_id' => isset($quoteExtensionId) && is_numeric($quoteExtensionId) ? $quoteExtensionId : null,
+            'action' => 'quote_deactivated',
+            'user_id' => $context['admin_user_id'] ?? null,
+            'user_type' => 'admin',
+            'old_values' => null,
+            'new_values' => json_encode($extension->getData()),
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -106,6 +146,19 @@ class AuditLogger
             'timestamp' => date('c'),
             'compliance_tags' => ['audit_trail', 'order_conversion', 'business_transaction']
         ]);
+        $quoteExtensionId = $extension->getEntityId();
+        $this->auditRepository->save([
+            'quote_extension_id' => isset($quoteExtensionId) && is_numeric($quoteExtensionId) ? $quoteExtensionId : null,
+            'action' => 'quote_to_order_conversion',
+            'user_id' => $context['customer_id'] ?? null,
+            'user_type' => 'customer',
+            'old_values' => null,
+            'new_values' => json_encode($extension->getData()),
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 
     /**
@@ -125,6 +178,19 @@ class AuditLogger
             'deleted_at' => $context['deleted_at'],
             'timestamp' => date('c'),
             'compliance_tags' => ['audit_trail', 'quote_deletion', 'data_removal']
+        ]);
+        $quoteExtensionId = $extension->getEntityId();
+        $this->auditRepository->save([
+            'quote_extension_id' => isset($quoteExtensionId) && is_numeric(quoteExtensionId) ? $quoteExtensionId : null,
+            'action' => 'quote_deleted',
+            'user_id' => $context['admin_user_id'] ?? null,
+            'user_type' => 'admin',
+            'old_values' => null,
+            'new_values' => json_encode($extension->getData()),
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -153,6 +219,18 @@ class AuditLogger
             'severity' => 'medium',
             'compliance_tags' => ['security_incident', 'access_control', 'prevention']
         ]);
+        $this->auditRepository->save([
+            'quote_extension_id' => $quoteId,
+            'action' => 'modification_blocked',
+            'user_id' => $context['admin_user_id'] ?? $context['customer_id'] ?? null,
+            'user_type' => isset($context['admin_user_id']) ? 'admin' : 'customer',
+            'old_values' => null,
+            'new_values' => null,
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 
     /**
@@ -178,6 +256,19 @@ class AuditLogger
             'execution_time' => $context['execution_time'] ?? null,
             'timestamp' => date('c'),
             'compliance_tags' => ['api_access', 'audit_trail']
+        ]);
+
+        $this->auditRepository->save([
+            'quote_extension_id' => isset($context['quote_extension_id']) && is_numeric($context['quote_extension_id']) ? $context['quote_extension_id'] : null,
+            'action' => 'api_access',
+            'user_id' => $context['admin_user_id'] ?? $context['customer_id'] ?? null,
+            'user_type' => isset($context['admin_user_id']) ? 'admin' : 'customer',
+            'old_values' => null,
+            'new_values' => null,
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -205,6 +296,60 @@ class AuditLogger
             'timestamp' => date('c'),
             'requires_investigation' => true,
             'compliance_tags' => ['security_incident', 'potential_breach', 'investigation_required']
+        ]);
+        $this->auditRepository->save([
+            'quote_extension_id' => (isset($context['quote_id']) && is_numeric($context['quote_id'])) ? $context['quote_id'] : null,
+            'action' => 'security_violation',
+            'user_id' => $context['admin_user_id'] ?? $context['customer_id'] ?? null,
+            'user_type' => isset($context['admin_user_id']) ? 'admin' : 'customer',
+            'old_values' => null,
+            'new_values' => null,
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    /**
+     * Log quote expiration
+     *
+     * @param QuoteExtensionInterface $extension
+     * @param array $context
+     * @return void
+     */
+    public function logQuoteExpiration(QuoteExtensionInterface $extension, array $context): void
+    {
+        $this->logger->info('Quote expired and deactivated', [
+            'event' => 'quote_expired',
+            'quote_id' => $extension->getQuoteId(),
+            'extension_id' => $extension->getEntityId(),
+            'customer_id' => $extension->getCustomerId(),
+            'expired_at' => $context['expired_at'] ?? null,
+            'expiration_date' => $context['expiration_date'] ?? null,
+            'automatic' => $context['automatic'] ?? true,
+            'manual_override' => $context['manual_override'] ?? false,
+            'processed_by' => $context['processed_by'] ?? 'system',
+            'admin_user_id' => $context['admin_user_id'] ?? null,
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'previous_status' => 'active',
+            'new_status' => 'expired',
+            'timestamp' => date('c'),
+            'compliance_tags' => ['audit_trail', 'quote_lifecycle', 'automatic_expiration']
+        ]);
+        $quoteExtensionId = $extension->getEntityId();
+        $this->auditRepository->save([
+            'quote_extension_id' => (isset($quoteExtensionId) && is_numeric($quoteExtensionId)) ? $quoteExtensionId : null,
+            'action' => 'quote_expired',
+            'user_id' => $context['admin_user_id'] ?? $extension->getCustomerId() ?? null,
+            'user_type' => isset($context['admin_user_id']) ? 'admin' : 'customer',
+            'old_values' => null,
+            'new_values' => json_encode($extension->getData()),
+            'context' => json_encode($context),
+            'ip_address' => $context['ip_address'] ?? null,
+            'user_agent' => $context['user_agent'] ?? null,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 }

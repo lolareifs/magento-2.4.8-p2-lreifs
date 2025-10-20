@@ -1,7 +1,7 @@
 <?php
 /**
  * Lreifs Multiquotes Quote Access Observer
- * 
+ *
  * @category    Lreifs
  * @package     Lreifs_Multiquotes
  * @author      Lola Reifs <lola@reifs.com>

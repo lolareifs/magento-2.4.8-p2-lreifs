@@ -3,16 +3,12 @@
 /**
  * Lreifs Multiquotes Module v1.0.0 - Database Schema
  * Defines database tables for enterprise immutable quote management
- * 
- * Tables:
- * - lreifs_quote_extension: Main quote extension data with immutability controls
- * - lreifs_multiquotes_audit_log: Comprehensive audit trail for all operations
- * 
- * Features optimized indexes, foreign keys, and constraints for performance
- * and data integrity in enterprise environments.
- * 
- * Copyright © Lreifs All rights reserved.
- * See COPYING.txt for license details.
+ *
+ * @category    Lreifs
+ * @package     Lreifs_Multiquotes
+ * @author      Lola Reifs <lola@reifs.com>
+ * @copyright   2025 Lreifs
+ * @license     https://opensource.org/licenses/MIT MIT License
  */
 -->
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -141,7 +137,7 @@
     <!-- Audit Log Table for Compliance -->
     <table name="lreifs_quote_extension_audit" resource="default" engine="innodb" comment="Lreifs Quote Extensions Audit Log">
         <column xsi:type="int" name="audit_id" unsigned="true" nullable="false" identity="true" comment="Audit ID"/>
-        <column xsi:type="int" name="quote_extension_id" unsigned="true" nullable="false" comment="Quote Extension ID"/>
+    <column xsi:type="int" name="quote_extension_id" unsigned="true" nullable="true" comment="Quote Extension ID"/>
         <column xsi:type="varchar" name="action" nullable="false" length="50" comment="Action Performed"/>
         <column xsi:type="varchar" name="user_id" nullable="true" length="255" comment="User ID"/>
         <column xsi:type="varchar" name="user_type" nullable="true" length="50" comment="User Type (admin, customer, system)"/>
@@ -159,7 +155,7 @@
         <constraint xsi:type="foreign" referenceId="LREIFS_QUOTE_EXT_AUDIT_QUOTE_EXT_ID" 
                     table="lreifs_quote_extension_audit" column="quote_extension_id" 
                     referenceTable="lreifs_quote_extension" referenceColumn="entity_id" 
-                    onDelete="CASCADE"/>
+                    onDelete="SET NULL"/>
         
         <index referenceId="LREIFS_QUOTE_EXT_AUDIT_QUOTE_EXT_ID" indexType="btree">
             <column name="quote_extension_id"/>
