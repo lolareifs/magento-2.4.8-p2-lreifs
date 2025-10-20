@@ -88,9 +88,6 @@ docker compose exec phpfpm php bin/magento setup:static-content:deploy es_ES en_
 echo "📦 Running indexers..."
 docker compose exec phpfpm php bin/magento indexer:reindex
 
-echo "🛍️ Creating test products..."
-docker compose exec phpfpm php create-test-products.php
-
 echo "🧹 Final cache clear..."
 docker compose exec phpfpm php bin/magento cache:clean
 docker compose exec phpfpm php bin/magento cache:flush
