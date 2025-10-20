@@ -30,6 +30,8 @@ echo "🔧 Disabling Two-Factor Authentication modules..."
 docker compose exec phpfpm php bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth Magento_TwoFactorAuth || true
 
 echo "⚙️ Installing Magento..."
+docker compose exec phpfpm composer install
+
 docker compose exec phpfpm php bin/magento setup:install \
   --base-url=http://local.magento/ \
   --db-host=db:3306 \
@@ -40,7 +42,7 @@ docker compose exec phpfpm php bin/magento setup:install \
   --admin-lastname=User \
   --admin-email=lolareifscarmona@gmail.com \
   --admin-user=admin \
-  --admin-password=XXX \
+  --admin-password=XXX1234 \
   --language=es_ES \
   --currency=EUR \
   --timezone=Europe/Madrid \
@@ -92,7 +94,7 @@ echo "   Admin Panel: http://localhost${ADMIN_URL}"
 echo ""
 echo "🔑 Admin Credentials:"
 echo "   Username: admin"
-echo "   Password: XXX"
+echo "   Password: XXX1234"
 echo ""
 echo "�️ Test Products Created:"
 echo "   - lreifs-test-product-001 (€99.99)"
